@@ -12,4 +12,4 @@ const CourseSchema = mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model('Courses', CourseSchema);
+module.exports = Course = mongoose.model('Courses', CourseSchema);
