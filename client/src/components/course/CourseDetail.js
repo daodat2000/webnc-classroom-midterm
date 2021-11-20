@@ -5,12 +5,22 @@ import { CourseNews } from './CourseNews';
 import { CourseSettings } from './CourseSettings';
 import { useState } from 'react';
 import { Grid, Menu, Segment } from 'semantic-ui-react';
-
 const { REACT_APP_SERVER_URL } = process.env;
 export const CourseDetail = (props) => {
   const [activeItem, setActiveItem] = useState('New Feeds');
   const [teachers, setTeachers] = useState([]);
   const [students, setStudents] = useState([]);
+  const [news,setNews] = useState([]);
+  const submitStatus = async (content) => {
+    console.log('add status');
+    try {
+      await axios.post(`${REACT_APP_SERVER_URL}/course/news`, {content:content, courseId:props.Course._id});
+      LoadNews();
+    } catch (error) {
+      if (error.response) return error.response.data;
+      else return { success: false, message: error.message };
+    }
+  };
   const LoadUsers = async () => {
     try {
       const response = await axios.get(
@@ -23,9 +33,25 @@ export const CourseDetail = (props) => {
       else return { success: false, message: error.message };
     }
   };
+  const LoadNews = async () => {
+    try {
+      const response = await axios.get(
+        `${REACT_APP_SERVER_URL}/course/news/${props.Course._id}`
+      );
+      console.log(response.data.status)
+      setNews(response.data.status)
+    } catch (error) {
+      if (error.response) return error.response.data;
+      else return { success: false, message: error.message };
+    }
+  };
   useEffect(() => {
     LoadUsers();
   }, []);
+  useEffect(() => {
+    LoadNews();
+  }, []);
+
   const handleItemClick = (e, { name }) => setActiveItem(name);
   let content;
   if (activeItem === 'Members') {
@@ -33,7 +59,7 @@ export const CourseDetail = (props) => {
       <CourseMember Students={students} Teachers={teachers}></CourseMember>
     );
   } else if (activeItem === 'New Feeds') {
-    content = <CourseNews></CourseNews>;
+    content = <CourseNews News={news} onSubmit={submitStatus}></CourseNews>;
   } else if (activeItem === 'Settings') {
     content = <CourseSettings Course={props.Course}></CourseSettings>;
   }

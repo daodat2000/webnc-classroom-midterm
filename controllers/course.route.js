@@ -6,6 +6,7 @@ const verifyToken = require('../middlewares/auth.mdw');
 const EnrollMent = require('../models/enrollments.models');
 const nodemailer = require('nodemailer');
 const usersModels = require('../models/users.models');
+const statusModels = require('../models/statuses.model');
 
 router.get('/', verifyToken, async function (req, res) {
   const enrolls = await EnrollMent.find({ userId: req.userId });
@@ -41,6 +42,26 @@ router.get('/members/:courseId', verifyToken, async function (req, res) {
     })
   )
   res.json({ teachers:userTeachers,students:userStudents});
+});
+
+router.get('/news/:courseId', verifyToken, async function (req, res) {
+  const { courseId } = req.params;
+  //console.log(courseId)
+  const status = await statusModels.find({courseId:courseId});
+  const users = await Promise.all(
+    status.map(async (s)=>{
+      const user = await usersModels.find({
+        _id: mongoose.Types.ObjectId(s.userId)
+      });
+      return user[0];
+    })
+  )
+  let news=[];
+  for(let i=0;i<users.length;i++){
+    news.push({content:status[0].content,user:users[0].name});
+  }
+  console.log(news);
+  res.json({status:news});
 });
 
 
@@ -80,6 +101,34 @@ router.get('/join/:courseId', verifyToken, async function (req, res) {
     message: 'Enroll course successfully',
   });
 });
+
+
+router.post('/news/', verifyToken, async function (req, res) {
+  console.log(req.body);
+
+
+  const { content, courseId } = req.body;
+  console.log(content);
+  console.log(courseId);
+  console.log(req.userId);
+  if (!content || !courseId) {
+    return res.status(400).json({ message: 'Missing required value' });
+  }
+  try {
+    const userId= req.userId;
+    const newStatus = new Status({courseId,userId,content})
+    await newStatus.save();
+    return res.json({
+      message: 'Status created successfully',
+    });
+  } catch (error) {
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+
+
+
 
 router.post('/invite/', verifyToken, async function (req, res) {
   const { courseId, email } = req.body;
