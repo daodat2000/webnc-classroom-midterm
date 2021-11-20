@@ -1,15 +1,18 @@
-import React  from "react";
-export class CourseMember extends React.Component {
-    render() {
-      return (
-        <div className="shopping-list">
-          <h1>Members </h1>
-          <ul>
-            <li>Instagram</li>
-            <li>WhatsApp</li>
-            <li>Oculus</li>
-          </ul>
-        </div>
-      );
-    }
-  }
+import React from 'react';
+export const CourseMember = ({Students,Teachers}) => {
+  console.log(Students)
+  return (
+    <div>
+      <h2>Teachers</h2>
+      <ul>
+        {Teachers.map((teacher,i) => <li key={i}>{teacher.name}</li>)}
+      </ul>
+      <h2>Students</h2>
+      <ul>
+        {Students.map((student,i) => <li key={i}>{student.name}</li>)}
+      </ul>
+     
+    </div>
+  );
+}
+  

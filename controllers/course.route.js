@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const verifyToken = require('../middlewares/auth.mdw');
 const EnrollMent = require('../models/enrollments.models');
 const nodemailer = require('nodemailer');
+const usersModels = require('../models/users.models');
 
 router.get('/', verifyToken, async function (req, res) {
   const enrolls = await EnrollMent.find({ userId: req.userId });
@@ -18,6 +19,34 @@ router.get('/', verifyToken, async function (req, res) {
   );
   res.json({ courses });
 });
+
+router.get('/members/:courseId', verifyToken, async function (req, res) {
+  const { courseId } = req.params;
+  const teachers = await EnrollMent.find({courseId:courseId,role:'Teacher'});
+  const students = await EnrollMent.find({courseId:courseId,role:'Student'});
+  const userTeachers = await Promise.all(
+    teachers.map(async (teacher)=>{
+      const user = await usersModels.find({
+        _id: mongoose.Types.ObjectId(teacher.userId)
+      });
+      return user[0];
+    })
+  )
+  const userStudents = await Promise.all(
+    students.map(async (student)=>{
+      const user = await usersModels.find({
+        _id: mongoose.Types.ObjectId(student.userId)
+      });
+      return user[0];
+    })
+  )
+  res.json({ teachers:userTeachers,students:userStudents});
+});
+
+
+
+
+
 
 router.get('/join/:courseId', verifyToken, async function (req, res) {
   const { role } = req.query;
@@ -121,4 +150,7 @@ router.post('/add', verifyToken, async function (req, res) {
     return res.status(500).json({ message: 'Internal server error' });
   }
 });
+
+
+
 module.exports = router;

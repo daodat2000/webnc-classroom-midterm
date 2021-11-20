@@ -8,15 +8,19 @@ export const CourseList = () => {
   return (
     <>
       <br />
-
       <Card.Group itemsPerRow={4}>
         {courseState.map((course, i) => (
+<<<<<<< HEAD
           <Card
             key={i}
             href='#'
             color='red'
             as={Link}
             to={`${url}/${course.name}`}
+=======
+          <Card key={i} href='#' color='red'
+            as={Link}to={`${url}/CourseDetail/${course._id}`}
+>>>>>>> 01324efe431e2008b3b0efc3711d1f4b92dda2c9
           >
             <Card.Content>
               <Image
