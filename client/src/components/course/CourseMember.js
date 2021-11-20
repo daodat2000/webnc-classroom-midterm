@@ -1,20 +1,76 @@
-import React from 'react';
-export const CourseMember = ({ Students, Teachers }) => {
-  console.log(Students);
+import React, { useState } from 'react';
+import { Button, List, Form } from 'semantic-ui-react';
+import axios from 'axios';
+
+export const CourseMember = ({ Students, Teachers, CourseId }) => {
+  console.log(Teachers);
+
+  const { REACT_APP_SERVER_URL } = process.env;
+
+  const [emailState, setEmailState] = useState('');
+
+  const myChangeHandler = (event) => {
+    setEmailState(event.target.value);
+  };
+  var Invitemember = async (role) => {
+    try {
+      const response = await axios.post(
+        `${REACT_APP_SERVER_URL}/course/invite`,
+        {
+          courseId: CourseId,
+          email: emailState,
+          role: role,
+        }
+      );
+      setEmailState('');
+      return response.data;
+    } catch (error) {
+      if (error.response) {
+        return error.response.data;
+      }
+    }
+  };
   return (
     <div>
+      <Form>
+        <Form.Input
+          icon='user'
+          iconPosition='left'
+          placeholder='Invite By E-mail'
+          type='email'
+          name='email'
+          onChange={myChangeHandler}
+          value={emailState}
+        />
+
+        <Button
+          content='Invite Teacher'
+          primary
+          onClick={() => Invitemember('Teacher')}
+        />
+        <Button
+          content='Invite Student'
+          onClick={() => Invitemember('Student')}
+        />
+      </Form>
       <h1>Teachers</h1>
-      <ul>
+      <List>
         {Teachers.map((teacher, i) => (
-          <li key={i}>{teacher.name}</li>
+          <List.Item key={i}>
+            <List.Icon name='user' />
+            <List.Content>{teacher.name}</List.Content>
+          </List.Item>
         ))}
-      </ul>
+      </List>
       <h1>Students</h1>
-      <ul>
+      <List>
         {Students.map((student, i) => (
-          <li key={i}>{student.name}</li>
+          <List.Item key={i}>
+            <List.Icon name='student' />
+            <List.Content>{student.name}</List.Content>
+          </List.Item>
         ))}
-      </ul>
+      </List>
     </div>
   );
 };
