@@ -18,7 +18,7 @@ function App() {
           <AuthRoute exact path='/register' component={Register} />
           <MenuUI>
             <Switch>
-              <ProtectedRoute path='/dashboard' component={Dashboard} />
+              <ProtectedRoute exact path='/' component={Dashboard} />
               <ProtectedRoute exact path='/account' component={Account} />
               <ProtectedRoute path='/course' component={Course} />
               <Route path='/home' component={Dashboard} />

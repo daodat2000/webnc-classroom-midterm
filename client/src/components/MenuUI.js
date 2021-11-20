@@ -10,6 +10,7 @@ import {
 } from 'semantic-ui-react';
 import { AuthContext } from '../contexts/AuthContext';
 import { Link, useLocation } from 'react-router-dom';
+
 const MenuUI = ({ children }) => {
   const {
     logoutUser,
@@ -53,7 +54,7 @@ const MenuUI = ({ children }) => {
     { key: 'sign-out', text: 'Sign Out', value: 8, onClick: Logout },
   ];
   return (
-    <>
+    <div>
       <Segment inverted>
         <Menu inverted pointing secondary stackable>
           <Container>
@@ -62,7 +63,7 @@ const MenuUI = ({ children }) => {
               active={activeItem === 'home'}
               onClick={handleItemClick}
               as={Link}
-              to='/home'
+              to='/'
             >
               <Icon name='home' />
               Home
@@ -110,7 +111,7 @@ const MenuUI = ({ children }) => {
         </Menu>
       </Segment>
       {children}
-    </>
+    </div>
   );
 };
 
