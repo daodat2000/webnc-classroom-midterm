@@ -1,31 +1,35 @@
-import React from 'react';
-
+import React, { useEffect } from 'react';
+import axios from 'axios';
 import { CourseMember } from './CourseMember';
 import { CourseNews } from './CourseNews';
 import { useState } from 'react';
 import { Grid, Menu, Segment } from 'semantic-ui-react';
-
-
-
-
-
-
-
-  export const ShoppingList = () => {
+const { REACT_APP_SERVER_URL } = process.env;
+export const CourseDetail = ({courseID}) => {
     const [activeItem,setActiveItem] =useState('New Feeds');
- 
-    const [member, setMember] = useState(true);
-    const handleItemClick = (e, { name }) => setActiveItem(name);
-   
-    
+    const [teachers,setTeachers]=useState([]);
+    const [students,setStudents]=useState([]);
+    const LoadUsers = async () => {
+      try {
+        const response = await axios.get(`${REACT_APP_SERVER_URL}/course/members/${courseID}`);
+        setStudents(response.data.students);
+        setTeachers(response.data.teachers);
+      } catch (error) {
+        if (error.response) return error.response.data;
+        else return { success: false, message: error.message };
+      }
+    }; 
+  useEffect(() => {
+    LoadUsers();
+  }, []);
+    const handleItemClick = (e, { name }) => setActiveItem(name);   
     let content;
     if (activeItem === 'Members') {
-      content = <CourseMember></CourseMember>
+      content = <CourseMember Students={students} Teachers={teachers}></CourseMember>
     }
     else {
       content = <CourseNews></CourseNews>
     }
-
     return (
       <>
         <br />
@@ -44,36 +48,12 @@ import { Grid, Menu, Segment } from 'semantic-ui-react';
               />
             </Menu>
           </Grid.Column>
-
           <Grid.Column stretched width={12}>
             <Segment>
-            
              {content}
             </Segment>
           </Grid.Column>
         </Grid>
       </>
-
-
-
-      // <Container>
-      //   <Nav defaultActiveKey="/home" as="ul">
-      //     <Nav.Item as="li">
-      //       <Nav.Link onClick={()=>setMember(false)}>News Feed</Nav.Link>
-      //     </Nav.Item>
-      //     <Nav.Item as="li">
-      //       <Nav.Link onClick={()=>setMember(true)}>Members</Nav.Link>
-      //     </Nav.Item>
-      //   </Nav>
-      //   {abc}
-
-
-
-      // </Container>
-
-
-
-
     );
-
 }
