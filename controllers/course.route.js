@@ -2,11 +2,96 @@ const express = require('express');
 const router = express.Router();
 const Course = require('../models/courses.models');
 const mongoose = require('mongoose');
+const verifyToken = require('../middlewares/auth.mdw');
+const EnrollMent = require('../models/enrollments.models');
+const nodemailer = require('nodemailer');
 
-router.get('/', async function (req, res) {
-  const courses = await Course.find();
+router.get('/', verifyToken, async function (req, res) {
+  const enrolls = await EnrollMent.find({ userId: req.userId });
+  const courses = await Promise.all(
+    enrolls.map(async (enroll) => {
+      const course = await Course.find({
+        _id: mongoose.Types.ObjectId(enroll.courseId),
+      });
+      return course[0];
+    })
+  );
   res.json({ courses });
 });
+
+router.get('/join/:courseId', verifyToken, async function (req, res) {
+  const { role } = req.query;
+  const { courseId } = req.params;
+  if (courseId.length != 24) {
+    return res.status(400).json({ message: 'courseId not invalid' });
+  }
+  const course = await Course.find(
+    {
+      _id: mongoose.Types.ObjectId(courseId),
+    },
+    { _id: 1 }
+  );
+  if (course.length == 0) {
+    return res.status(400).json({ message: 'cannot find course' });
+  }
+  const enrollment = await EnrollMent.find({
+    userId: req.userId,
+    courseId: course[0],
+  });
+  if (enrollment.length > 0) {
+    return res.status(400).json({ message: 'You enrolled in the course' });
+  }
+  const newEnrollment = new EnrollMent({
+    courseId: course[0]._id,
+    userId: req.userId,
+    role: role == 'teacher' ? 'Teacher' : 'Student',
+  });
+  await newEnrollment.save();
+  return res.json({
+    message: 'Enroll course successfully',
+  });
+});
+
+router.post('/invite/', verifyToken, async function (req, res) {
+  const { courseId, email } = req.body;
+
+  if (courseId.length != 24) {
+    return res.status(400).json({ message: 'courseId not invalid' });
+  }
+  const course = await Course.find({
+    _id: mongoose.Types.ObjectId(courseId),
+  });
+  if (course.length == 0) {
+    return res.status(400).json({ message: 'cannot find course' });
+  }
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'webnc.classroom@gmail.com',
+      pass: 'Daodat2000',
+    },
+  });
+
+  const mailOptions = {
+    from: 'webnc.classroom@gmail.com',
+    to: email,
+    subject: `You received an invitation to join the class`,
+    html: `<p>If you want to join the class, press <a href="localhost3000:/course/join:${courseId}">Join Class</a></p><p>If not, please ignore this message</p>`,
+  };
+
+  transporter.sendMail(mailOptions, function (error, info) {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log('Email sent: ' + info.response);
+    }
+  });
+
+  return res.json({
+    message: 'SendEmail',
+  });
+});
+
 router.get('/:id', async function (req, res) {
   const id = req.params.id;
 
@@ -15,14 +100,20 @@ router.get('/:id', async function (req, res) {
   });
   res.json({ course: course });
 });
-router.post('/add', async function (req, res) {
+router.post('/add', verifyToken, async function (req, res) {
   const { name, teacher, description, membership } = req.body;
   if (!name || !teacher || !description || !membership) {
     return res.status(400).json({ message: 'Missing required value' });
   }
   try {
     const newCourse = new Course({ name, teacher, description, membership });
-    await newCourse.save();
+    const course = await newCourse.save();
+    const newEnrollment = new EnrollMent({
+      courseId: course._id,
+      userId: req.userId,
+      role: 'Teacher',
+    });
+    await newEnrollment.save();
     return res.json({
       message: 'Course created successfully',
     });
