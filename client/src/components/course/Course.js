@@ -3,6 +3,7 @@ import { useRouteMatch, Switch, Route } from 'react-router-dom';
 import axios from 'axios';
 import { Icon, Container, Modal, Button, Form } from 'semantic-ui-react';
 import { CourseList } from './CourseList';
+import {ShoppingList} from './CourseDetail';
 
 export const CourseContext = createContext();
 const { REACT_APP_SERVER_URL } = process.env;
@@ -112,6 +113,11 @@ export const Course = () => {
             <CourseList />
           </Container>
         </Route>
+        {courseState.map((course, i) => (
+          <Route path={`${path}/CourseDetail`} key={i}>
+            <ShoppingList Course={course} />
+          </Route>
+        ))}
       </Switch>
     </CourseContext.Provider>
   );

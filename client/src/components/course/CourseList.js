@@ -1,7 +1,9 @@
 import React, { useContext } from 'react';
+import { Link, useRouteMatch } from 'react-router-dom';
 import { Card, Icon, Image } from 'semantic-ui-react';
 import { CourseContext } from './Course';
 export const CourseList = () => {
+  let { path, url } = useRouteMatch();
   const { courseState } = useContext(CourseContext);
   return (
     <>
@@ -9,7 +11,9 @@ export const CourseList = () => {
 
       <Card.Group itemsPerRow={4}>
         {courseState.map((course, i) => (
-          <Card key={i} href='#' color='red'>
+          <Card key={i} href='#' color='red'
+            as={Link}to={`${url}/CourseDetail`}
+          >
             <Card.Content>
               <Image
                 floated='right'
