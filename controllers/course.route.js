@@ -23,25 +23,31 @@ router.get('/', verifyToken, async function (req, res) {
 
 router.get('/members/:courseId', verifyToken, async function (req, res) {
   const { courseId } = req.params;
-  const teachers = await EnrollMent.find({courseId:courseId,role:'Teacher'});
-  const students = await EnrollMent.find({courseId:courseId,role:'Student'});
+  const teachers = await EnrollMent.find({
+    courseId: courseId,
+    role: 'Teacher',
+  });
+  const students = await EnrollMent.find({
+    courseId: courseId,
+    role: 'Student',
+  });
   const userTeachers = await Promise.all(
-    teachers.map(async (teacher)=>{
+    teachers.map(async (teacher) => {
       const user = await usersModels.find({
-        _id: mongoose.Types.ObjectId(teacher.userId)
+        _id: mongoose.Types.ObjectId(teacher.userId),
       });
       return user[0];
     })
-  )
+  );
   const userStudents = await Promise.all(
-    students.map(async (student)=>{
+    students.map(async (student) => {
       const user = await usersModels.find({
-        _id: mongoose.Types.ObjectId(student.userId)
+        _id: mongoose.Types.ObjectId(student.userId),
       });
       return user[0];
     })
-  )
-  res.json({ teachers:userTeachers,students:userStudents});
+  );
+  res.json({ teachers: userTeachers, students: userStudents });
 });
 
 router.get('/news/:courseId', verifyToken, async function (req, res) {
@@ -63,8 +69,6 @@ router.get('/news/:courseId', verifyToken, async function (req, res) {
   console.log(news);
   res.json({status:news});
 });
-
-
 
 
 
@@ -131,7 +135,7 @@ router.post('/news/', verifyToken, async function (req, res) {
 
 
 router.post('/invite/', verifyToken, async function (req, res) {
-  const { courseId, email } = req.body;
+  const { courseId, email, role } = req.body;
 
   if (courseId.length != 24) {
     return res.status(400).json({ message: 'courseId not invalid' });
@@ -149,12 +153,12 @@ router.post('/invite/', verifyToken, async function (req, res) {
       pass: 'Daodat2000',
     },
   });
-
+  const { URL_ClIENT } = process.env;
   const mailOptions = {
     from: 'webnc.classroom@gmail.com',
     to: email,
     subject: `You received an invitation to join the class`,
-    html: `<p>If you want to join the class, press <a href="localhost3000:/course/join:${courseId}">Join Class</a></p><p>If not, please ignore this message</p>`,
+    html: `<p>If you want to join the class, press <a href="${URL_ClIENT}/course/join/${courseId}?role=${role}">Join Class</a></p><p>If not, please ignore this message</p>`,
   };
 
   transporter.sendMail(mailOptions, function (error, info) {
@@ -199,7 +203,5 @@ router.post('/add', verifyToken, async function (req, res) {
     return res.status(500).json({ message: 'Internal server error' });
   }
 });
-
-
 
 module.exports = router;

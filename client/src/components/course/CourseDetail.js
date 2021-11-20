@@ -56,7 +56,11 @@ export const CourseDetail = (props) => {
   let content;
   if (activeItem === 'Members') {
     content = (
-      <CourseMember Students={students} Teachers={teachers}></CourseMember>
+      <CourseMember
+        Students={students}
+        Teachers={teachers}
+        CourseId={props.Course._id}
+      ></CourseMember>
     );
   } else if (activeItem === 'New Feeds') {
     content = <CourseNews News={news} onSubmit={submitStatus}></CourseNews>;
