@@ -1,18 +1,20 @@
 import React from 'react';
-export const CourseMember = ({Students,Teachers}) => {
-  console.log(Students)
+export const CourseMember = ({ Students, Teachers }) => {
+  console.log(Students);
   return (
     <div>
-      <h2>Teachers</h2>
+      <h1>Teachers</h1>
       <ul>
-        {Teachers.map((teacher,i) => <li key={i}>{teacher.name}</li>)}
+        {Teachers.map((teacher, i) => (
+          <li key={i}>{teacher.name}</li>
+        ))}
       </ul>
-      <h2>Students</h2>
+      <h1>Students</h1>
       <ul>
-        {Students.map((student,i) => <li key={i}>{student.name}</li>)}
+        {Students.map((student, i) => (
+          <li key={i}>{student.name}</li>
+        ))}
       </ul>
-     
     </div>
   );
-}
-  
+};
