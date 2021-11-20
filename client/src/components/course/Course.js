@@ -3,7 +3,8 @@ import { useRouteMatch, Switch, Route } from 'react-router-dom';
 import axios from 'axios';
 import { Icon, Container, Modal, Button, Form } from 'semantic-ui-react';
 import { CourseList } from './CourseList';
-import {ShoppingList} from './CourseDetail';
+import { ShoppingList } from './CourseDetail';
+import { Enrollment } from './Enrollment';
 
 export const CourseContext = createContext();
 const { REACT_APP_SERVER_URL } = process.env;
@@ -22,6 +23,7 @@ export const Course = () => {
     setClassForm({ ...classForm, [event.target.name]: event.target.value });
   };
   const LoadCourses = async () => {
+    console.log('load');
     try {
       const response = await axios.get(`${REACT_APP_SERVER_URL}/course`);
       setCourseState(response.data.courses);
@@ -45,7 +47,18 @@ export const Course = () => {
   useEffect(() => {
     LoadCourses();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-  const CourseContextData = { courseState };
+  const joinClass = async (pathname) => {
+    try {
+      const response = await axios.get(`${REACT_APP_SERVER_URL}${pathname}`);
+      LoadCourses();
+      return response.data;
+    } catch (error) {
+      if (error.response) {
+        return error.response.data;
+      }
+    }
+  };
+  const CourseContextData = { courseState, joinClass };
   return (
     <CourseContext.Provider value={CourseContextData}>
       <Switch>
@@ -114,10 +127,13 @@ export const Course = () => {
           </Container>
         </Route>
         {courseState.map((course, i) => (
-          <Route path={`${path}/CourseDetail`} key={i}>
+          <Route path={`${path}/${course.name}`} key={i}>
             <ShoppingList Course={course} />
           </Route>
         ))}
+        <Route path={`${path}/join/`}>
+          <Enrollment />
+        </Route>
       </Switch>
     </CourseContext.Provider>
   );
