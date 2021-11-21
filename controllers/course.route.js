@@ -64,7 +64,7 @@ router.get('/news/:courseId', verifyToken, async function (req, res) {
   )
   let news=[];
   for(let i=0;i<users.length;i++){
-    news.push({content:status[0].content,user:users[0].name});
+    news.push({content:status[i].content,user:users[i].name});
   }
   console.log(news);
   res.json({status:news});
