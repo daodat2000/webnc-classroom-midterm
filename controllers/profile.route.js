@@ -7,19 +7,17 @@ const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
 const Profile = require('../models/profiles.models');
 
-const {
-  GOOGLE_CLIENT_ID,
-  ACCESS_TOKEN_SECRET,
-  ACCESS_TOKEN_LIFETIME,
-  REFRESH_TOKEN_SECRET,
-  REFRESH_TOKEN_LIFETIME,
-} = process.env;
-
 router.get('/', verifyToken, async function (req, res) {
-  const profile = (await Profile.findOne({ userId: req.userId })).toJSON();
-  profile.name = (await User.findOne({ _id: req.userId })).name;
-  console.log(profile);
-  res.json(profile);
+  var profile = await Profile.findOne({ userId: req.userId });
+  if (profile == null) {
+    const newProfile = new Profile({ userId: req.userId });
+    profile = await newProfile.save();
+  }
+  const profileUser = profile.toJSON();
+  const user = await User.findOne({ _id: req.userId });
+  profileUser.name = user.name;
+  profileUser.email = user.email;
+  res.json(profileUser);
 });
 router.post('/', verifyToken, async function (req, res) {
   const { name, gender, studentId, place, about } = req.body;

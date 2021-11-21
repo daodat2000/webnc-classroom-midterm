@@ -43,7 +43,7 @@ const MenuUI = ({ children }) => {
       key: 'profile',
       text: 'Your Profile',
       as: Link,
-      to: `/account/profile`,
+      to: `/account`,
       value: 2,
     },
     { key: 'stars', text: 'Your Stars', value: 3 },
