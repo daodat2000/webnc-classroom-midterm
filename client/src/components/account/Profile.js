@@ -11,17 +11,18 @@ import {
 
 export const Profile = () => {
   const { REACT_APP_SERVER_URL } = process.env;
-  const [profileState, setProfileState] = useState();
-  const genderOptions = [
-    { key: 'm', text: 'Male', value: 'male' },
-    { key: 'f', text: 'Female', value: 'female' },
-    { key: 'o', text: 'Other', value: 'other' },
-  ];
+  const [profileState, setProfileState] = useState({
+    _id: '',
+    userId: '',
+    about: '',
+    gender: '',
+    place: '',
+    studentId: '',
+    name: '',
+  });
   const LoadProfile = async () => {
     try {
       const response = await axios.get(`${REACT_APP_SERVER_URL}/profile`);
-      response.data.name = 'abc';
-      console.log(response.data);
       setProfileState(response.data);
     } catch (error) {
       if (error.response) return error.response.data;
@@ -29,9 +30,23 @@ export const Profile = () => {
     }
   };
   useEffect(() => {
-    LoadProfile(profileState);
+    LoadProfile();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-  console.log();
+  const myChangeHandler = (event) => {
+    setProfileState({
+      ...profileState,
+      [event.target.name]: event.target.value,
+    });
+  };
+  const submitAddClassForm = async () => {
+    try {
+      await axios.post(`${REACT_APP_SERVER_URL}/profile`, profileState);
+      LoadProfile();
+    } catch (error) {
+      if (error.response) return error.response.data;
+      else return { success: false, message: error.message };
+    }
+  };
   return (
     <Form>
       <Header as='h1' dividing>
@@ -43,20 +58,28 @@ export const Profile = () => {
           control={Input}
           label='Name'
           placeholder='Name'
+          name='name'
+          onChange={myChangeHandler}
+          value={profileState.name}
         />
         <Form.Field
-          id='form-input-control-last-Place'
+          id='form-input-control-last-Email'
           control={Input}
           label='Email'
           placeholder='Email'
+          name='email'
+          onChange={myChangeHandler}
+          value={profileState.email}
+          disabled
         />
         <Form.Field
-          control={Select}
-          options={genderOptions}
-          label={{ children: 'Gender', htmlFor: 'form-select-control-gender' }}
+          id='form-input-control-last-Gender'
+          control={Input}
+          label='Gender'
           placeholder='Gender'
-          search
-          searchInput={{ id: 'form-select-control-gender' }}
+          name='gender'
+          onChange={myChangeHandler}
+          value={profileState.gender}
         />
       </Form.Group>
       <Form.Field
@@ -64,12 +87,18 @@ export const Profile = () => {
         control={Input}
         label='StudentId'
         placeholder='StudentId'
+        name='studentId'
+        onChange={myChangeHandler}
+        value={profileState.studentId}
       />
       <Form.Field
         id='form-input-control-first-Place'
         control={Input}
         label='Place'
         placeholder='Place'
+        name='place'
+        onChange={myChangeHandler}
+        value={profileState.place}
       />
 
       <Form.Field
@@ -77,11 +106,15 @@ export const Profile = () => {
         control={TextArea}
         label='About'
         placeholder='About'
+        name='about'
+        onChange={myChangeHandler}
+        value={profileState.about}
       />
       <Form.Field
         id='form-button-control-public'
         control={Button}
         content='Update'
+        onClick={submitAddClassForm}
       />
     </Form>
   );
