@@ -19,15 +19,6 @@ router.get('/', verifyToken, async function (req, res) {
   profileUser.email = user.email;
   res.json(profileUser);
 });
-router.post('/', verifyToken, async function (req, res) {
-  const { name, gender, studentId, place, about } = req.body;
-  await User.updateOne({ _id: req.userId }, { $set: { name: name } });
-  await Profile.updateOne(
-    { userId: req.userId },
-    { $set: { gender, studentId, place, about } }
-  );
-  const profile = await Profile.find({ userId: req.userId });
-  res.json(profile);
-});
+
 
 module.exports = router;
