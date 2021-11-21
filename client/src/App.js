@@ -7,7 +7,7 @@ import AuthContextProvider from './contexts/AuthContext';
 import AuthRoute from './components/routing/AuthRoute';
 import ProtectedRoute from './components/routing/ProtectedRoute';
 import { Course } from './components/course/Course';
-import Account from './components/account/Account';
+import { Account } from './components/account/Account';
 import MenuUI from './components/MenuUI';
 function App() {
   return (
