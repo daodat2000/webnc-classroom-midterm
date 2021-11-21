@@ -53,25 +53,29 @@ router.get('/members/:courseId', verifyToken, async function (req, res) {
 router.get('/news/:courseId', verifyToken, async function (req, res) {
   const { courseId } = req.params;
   //console.log(courseId)
-  const status = await statusModels.find({courseId:courseId});
+  const status = await statusModels.find({ courseId: courseId });
   const users = await Promise.all(
-    status.map(async (s)=>{
+    status.map(async (s) => {
       const user = await usersModels.find({
-        _id: mongoose.Types.ObjectId(s.userId)
+        _id: mongoose.Types.ObjectId(s.userId),
       });
       return user[0];
     })
+<<<<<<< HEAD
   )
   let news=[];
   for(let i=0;i<users.length;i++){
     news.push({content:status[i].content,user:users[i].name});
+=======
+  );
+  let news = [];
+  for (let i = 0; i < users.length; i++) {
+    news.push({ content: status[i].content, user: users[i].name });
+>>>>>>> 03cb6a325c6dd4edc9d21015c8b2c536477eb4fa
   }
   console.log(news);
-  res.json({status:news});
+  res.json({ status: news });
 });
-
-
-
 
 router.get('/join/:courseId', verifyToken, async function (req, res) {
   const { role } = req.query;
@@ -106,10 +110,8 @@ router.get('/join/:courseId', verifyToken, async function (req, res) {
   });
 });
 
-
 router.post('/news/', verifyToken, async function (req, res) {
   console.log(req.body);
-
 
   const { content, courseId } = req.body;
   console.log(content);
@@ -119,8 +121,8 @@ router.post('/news/', verifyToken, async function (req, res) {
     return res.status(400).json({ message: 'Missing required value' });
   }
   try {
-    const userId= req.userId;
-    const newStatus = new Status({courseId,userId,content})
+    const userId = req.userId;
+    const newStatus = new Status({ courseId, userId, content });
     await newStatus.save();
     return res.json({
       message: 'Status created successfully',
@@ -129,10 +131,6 @@ router.post('/news/', verifyToken, async function (req, res) {
     return res.status(500).json({ message: 'Internal server error' });
   }
 });
-
-
-
-
 
 router.post('/invite/', verifyToken, async function (req, res) {
   const { courseId, email, role } = req.body;

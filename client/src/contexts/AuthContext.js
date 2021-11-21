@@ -23,7 +23,7 @@ const AuthContextProvider = ({ children }) => {
       }
     }
   };
-
+  console.log(authState.user);
   //Authentcate user
   const loadUser = async () => {
     if (localStorage[REACT_APP_TOKEN_NAME]) {
