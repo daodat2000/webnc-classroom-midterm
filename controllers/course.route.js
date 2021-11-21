@@ -61,17 +61,10 @@ router.get('/news/:courseId', verifyToken, async function (req, res) {
       });
       return user[0];
     })
-<<<<<<< HEAD
-  )
-  let news=[];
-  for(let i=0;i<users.length;i++){
-    news.push({content:status[i].content,user:users[i].name});
-=======
   );
   let news = [];
   for (let i = 0; i < users.length; i++) {
     news.push({ content: status[i].content, user: users[i].name });
->>>>>>> 03cb6a325c6dd4edc9d21015c8b2c536477eb4fa
   }
   console.log(news);
   res.json({ status: news });
