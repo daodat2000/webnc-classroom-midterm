@@ -5,6 +5,7 @@ import { CourseNews } from './CourseNews';
 import { CourseSettings } from './CourseSettings';
 import { useState } from 'react';
 import { Grid, Menu, Segment } from 'semantic-ui-react';
+import { CourseGrade } from './CourseGrade';
 const { REACT_APP_SERVER_URL } = process.env;
 export const CourseDetail = (props) => {
   const [activeItem, setActiveItem] = useState('New Feeds');
@@ -66,7 +67,10 @@ export const CourseDetail = (props) => {
     content = <CourseNews News={news} onSubmit={submitStatus}></CourseNews>;
   } else if (activeItem === 'Settings') {
     content = <CourseSettings Course={props.Course}></CourseSettings>;
+  } else if (activeItem == 'Grades'){
+    content = <CourseGrade ></CourseGrade>
   }
+  
   return (
     <>
       <br />
@@ -81,6 +85,11 @@ export const CourseDetail = (props) => {
             <Menu.Item
               name='Members'
               active={activeItem === 'Members'}
+              onClick={handleItemClick}
+            />
+            <Menu.Item
+              name='Grades'
+              active={activeItem === 'Grades'}
               onClick={handleItemClick}
             />
             <Menu.Item
