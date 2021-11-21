@@ -7,6 +7,8 @@ const EnrollMent = require('../models/enrollments.models');
 const nodemailer = require('nodemailer');
 const usersModels = require('../models/users.models');
 const statusModels = require('../models/statuses.model');
+const gradesModel = require('../models/grades.model');
+const profilesModels = require('../models/profiles.models');
 
 router.get('/', verifyToken, async function (req, res) {
   const enrolls = await EnrollMent.find({ userId: req.userId });
@@ -68,6 +70,19 @@ router.get('/news/:courseId', verifyToken, async function (req, res) {
   }
   console.log(news);
   res.json({ status: news });
+});
+
+router.get('/grades/:courseId', verifyToken, async function (req, res) {
+  const { courseId } = req.params;
+  console.log(typeof(mongoose.Types.ObjectId(req.userId)))
+  const user = await profilesModels.findOne({userId:mongoose.Types.ObjectId(req.userId)})
+  console.log("user")
+ 
+  console.log(user);
+  //console.log(courseId)
+  const grades = await gradesModel.find({courseId:courseId,studentId:user.studentId});
+  console.log(grades);
+  res.json({ grades: grades });
 });
 
 router.get('/join/:courseId', verifyToken, async function (req, res) {

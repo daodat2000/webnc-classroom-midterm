@@ -12,6 +12,7 @@ export const CourseDetail = (props) => {
   const [teachers, setTeachers] = useState([]);
   const [students, setStudents] = useState([]);
   const [news,setNews] = useState([]);
+  const [grades,setGrades] = useState([]);
   const submitStatus = async (content) => {
     console.log('add status');
     try {
@@ -46,11 +47,30 @@ export const CourseDetail = (props) => {
       else return { success: false, message: error.message };
     }
   };
+  const LoadGrades = async () => {
+    try {
+      const response = await axios.get(
+        `${REACT_APP_SERVER_URL}/course/grades/${props.Course._id}`
+      );
+      console.log("grades")
+      console.log(response.data.grades)
+      setGrades(response.data.grades)
+    } catch (error) {
+      if (error.response) return error.response.data;
+      else return { success: false, message: error.message };
+    }
+  };
+
+
+
   useEffect(() => {
     LoadUsers();
   }, []);
   useEffect(() => {
     LoadNews();
+  }, []);
+  useEffect(() => {
+    LoadGrades();
   }, []);
 
   const handleItemClick = (e, { name }) => setActiveItem(name);
@@ -68,7 +88,7 @@ export const CourseDetail = (props) => {
   } else if (activeItem === 'Settings') {
     content = <CourseSettings Course={props.Course}></CourseSettings>;
   } else if (activeItem == 'Grades'){
-    content = <CourseGrade ></CourseGrade>
+    content = <CourseGrade Grade={grades} ></CourseGrade>
   }
   
   return (

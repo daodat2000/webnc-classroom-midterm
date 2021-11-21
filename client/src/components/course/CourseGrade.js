@@ -4,18 +4,19 @@ import { Button } from 'semantic-ui-react'
 import { Form } from 'semantic-ui-react'
 import { List } from 'semantic-ui-react'
 
-export const CourseGrade = () => {
- 
+export const CourseGrade = ({Grade}) => {
   return (
     <div>
         <h1>Grades  </h1>
         <List>
-            <List.Item>
-                <List.Icon name='student'/>
-                <List.Content>Võ Ngọc Mẫn</List.Content>
-                <List.Icon/>
-                <List.Content>10</List.Content>
-            </List.Item>
+        {Grade.map((grade, i) => (
+           <List.Item>
+           <List.Icon name='student'/>
+           <List.Content>{grade.studentId}</List.Content>
+           <List.Icon/>
+           <List.Content>{grade.grade}</List.Content>
+       </List.Item>
+        ))}
         </List>
     </div>
   );
