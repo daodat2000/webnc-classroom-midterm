@@ -96,7 +96,28 @@ export const CourseDetail = (props) => {
       <br />
       <Grid container>
         <Grid.Column width={4}>
-          
+          <Menu fluid vertical tabular pointing color='blue'>
+            <Menu.Item
+              name='New Feeds'
+              active={activeItem === 'New Feeds'}
+              onClick={handleItemClick}
+            />
+            <Menu.Item
+              name='Members'
+              active={activeItem === 'Members'}
+              onClick={handleItemClick}
+            />
+            <Menu.Item
+              name='Grades'
+              active={activeItem === 'Grades'}
+              onClick={handleItemClick}
+            />
+            <Menu.Item
+              name='Settings'
+              active={activeItem === 'Settings'}
+              onClick={handleItemClick}
+            />
+          </Menu>
         </Grid.Column>
         <Grid.Column stretched width={12}>
           <Segment>{content}</Segment>

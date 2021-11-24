@@ -22,7 +22,42 @@ export const Course = () => {
   const myChangeHandler = (event) => {
     setClassForm({ ...classForm, [event.target.name]: event.target.value });
   };
-  
+  const LoadCourses = async () => {
+    console.log('load');
+    try {
+      const response = await axios.get(`${REACT_APP_SERVER_URL}/course`);
+      setCourseState(response.data.courses);
+    } catch (error) {
+      if (error.response) return error.response.data;
+      else return { success: false, message: error.message };
+    }
+  };
+  const submitAddClassForm = async () => {
+    console.log('add Course');
+    try {
+      await axios.post(`${REACT_APP_SERVER_URL}/course/add`, classForm);
+      setOpen(false);
+      await LoadCourses();
+    } catch (error) {
+      if (error.response) return error.response.data;
+      else return { success: false, message: error.message };
+    }
+  };
+
+  useEffect(() => {
+    LoadCourses();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const joinClass = async (pathname) => {
+    try {
+      const response = await axios.get(`${REACT_APP_SERVER_URL}${pathname}`);
+      LoadCourses();
+      return response.data;
+    } catch (error) {
+      if (error.response) {
+        return error.response.data;
+      }
+    }
+  };
   const CourseContextData = { courseState, joinClass };
   return (
     <CourseContext.Provider value={CourseContextData}>

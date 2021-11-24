@@ -20,15 +20,7 @@ export const Profile = () => {
     studentId: '',
     name: '',
   });
-  const LoadProfile = async () => {
-    try {
-      const response = await axios.get(`${REACT_APP_SERVER_URL}/profile`);
-      setProfileState(response.data);
-    } catch (error) {
-      if (error.response) return error.response.data;
-      else return { success: false, message: error.message };
-    }
-  };
+  
   useEffect(() => {
     LoadProfile();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
