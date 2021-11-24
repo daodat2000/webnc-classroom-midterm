@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useRouteMatch, useLocation, Switch, Route } from 'react-router-dom';
 import { Form, Button, Message, Container } from 'semantic-ui-react';
-import axios from 'axios';
 import { CourseContext } from './Course';
 
 export const Enrollment = () => {
