@@ -46,11 +46,11 @@ export const CourseMember = ({ Students, Teachers, CourseId }) => {
         <Button
           content='Invite Teacher'
           primary
-          onClick={() => Invitemember('Teacher')}
+          onClick={() => Invitemember('teacher')}
         />
         <Button
           content='Invite Student'
-          onClick={() => Invitemember('Student')}
+          onClick={() => Invitemember('student')}
         />
       </Form>
       <h1>Teachers</h1>

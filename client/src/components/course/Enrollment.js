@@ -27,8 +27,9 @@ export const Enrollment = () => {
   //   }
   // };
   // eslint-disable-next-line react-hooks/exhaustive-deps
+  console.log(location.search);
   useEffect(async () => {
-    const result = await joinClass(location.pathname);
+    const result = await joinClass(location.pathname + location.search);
     if (result !== undefined) {
       setEnroll(result.message);
     } else setEnroll('404');
