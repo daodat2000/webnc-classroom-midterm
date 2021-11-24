@@ -43,7 +43,7 @@ export const Course = () => {
       else return { success: false, message: error.message };
     }
   };
-
+  // useEffect for loading courses
   useEffect(() => {
     LoadCourses();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps

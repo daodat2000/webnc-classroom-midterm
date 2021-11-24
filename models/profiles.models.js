@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+//Connect model to database
 const ProfileSchema = mongoose.Schema(
   {
     userId: { type: Schema.Types.ObjectId, ref: 'User' },
