@@ -6,6 +6,7 @@ import { CourseSettings } from './CourseSettings';
 import { useState } from 'react';
 import { Grid, Menu, Segment } from 'semantic-ui-react';
 import { CourseGrade } from './CourseGrade';
+import {CourseGradeStructure} from './CourseGradeStructure';
 const { REACT_APP_SERVER_URL } = process.env;
 export const CourseDetail = (props) => {
   const [activeItem, setActiveItem] = useState('New Feeds');
@@ -13,6 +14,8 @@ export const CourseDetail = (props) => {
   const [students, setStudents] = useState([]);
   const [news,setNews] = useState([]);
   const [grades,setGrades] = useState([]);
+  //using for course grade structure
+  //const [gradeStructure,setGradeStructure] = useState([]);
   const submitStatus = async (content) => {
     console.log('add status');
     try {
@@ -89,6 +92,9 @@ export const CourseDetail = (props) => {
     content = <CourseSettings Course={props.Course}></CourseSettings>;
   } else if (activeItem == 'Grades'){
     content = <CourseGrade Grade={grades} ></CourseGrade>
+  } else if (activeItem == 'Grade Structure'){
+    //We need to load the grade structure, currently not implemented
+    content = <CourseGradeStructure GradeStructure={props}></CourseGradeStructure>
   }
   
   return (
@@ -110,6 +116,11 @@ export const CourseDetail = (props) => {
             <Menu.Item
               name='Grades'
               active={activeItem === 'Grades'}
+              onClick={handleItemClick}
+            />
+            <Menu.Item
+              name='Grade Structure'
+              active={activeItem === 'Grade Structure'}
               onClick={handleItemClick}
             />
             <Menu.Item
