@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useRouteMatch, Switch, Route } from 'react-router-dom';
 import { Form, Button, Message } from 'semantic-ui-react';
 export const CourseSettings = (props) => {
   console.log(props.Course);

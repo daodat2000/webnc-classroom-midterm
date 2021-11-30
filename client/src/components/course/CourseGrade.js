@@ -1,7 +1,4 @@
 import React, { useState } from "react";
-import TextareaAutosize from 'react-textarea-autosize';
-import { Button } from 'semantic-ui-react'
-import { Form } from 'semantic-ui-react'
 import { List } from 'semantic-ui-react'
 
 export const CourseGrade = ({Grade}) => {
