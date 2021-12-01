@@ -32,8 +32,8 @@
   /* display: flex; */
   align-items: center;
   border: solid 2px #d0d0d0;
-  border-radius: .2em;
-  padding: .5em .8em .5em .5em;
+  border-radius: 0.2em;
+  padding: 0.5em 0.8em 0.5em 0.5em;
   margin-bottom: 1em;
 }
 
@@ -49,8 +49,8 @@
   width: 2em;
   height: 2em;
   background-color: #e8e8e8;
-  padding: .5em;
-  margin-right: .5em;
+  padding: 0.5em;
+  margin-right: 0.5em;
 }
 
 .scoreColumn-thumb img {
@@ -58,6 +58,6 @@
   width: 100%;
   height: auto;
 }
-.button-group{
-  padding-left: 60px;
+.button-group {
+  float: right;
 }

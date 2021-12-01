@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import './CourseGradeStructure.css';
-import { Button, Input } from 'semantic-ui-react';
+import { Button, Input, Segment } from 'semantic-ui-react';
 
 const sampleScoreColumn = [
   {
@@ -34,6 +34,21 @@ const sampleScoreColumn = [
 export const CourseGradeStructure = (props) => {
   const [scoreColumn, updateScoreColumn] = useState(sampleScoreColumn);
   const [editIndex, setEditIndex] = useState(1);
+  const [addGrade, setAddGrade] = useState({
+    GradeTitle: '',
+    GradeDetail: '',
+  });
+  const changeHandlerAddGrade = (event) => {
+    setAddGrade({ ...addGrade, [event.target.name]: event.target.value });
+  };
+  const changeHandlerEditGrade = (event) => {
+    const items = Array.from(scoreColumn);
+    items[editIndex] = {
+      ...items[editIndex],
+      [event.target.name]: event.target.value,
+    };
+    updateScoreColumn(items);
+  };
   function handleOnDragEnd(result) {
     if (!result.destination) return;
 
@@ -58,6 +73,17 @@ export const CourseGradeStructure = (props) => {
     console.log(index);
     setEditIndex(-1);
   };
+  const AddGradeStructure = () => {
+    const items = Array.from(scoreColumn);
+    const newgrade = addGrade;
+    newgrade.id = (items.length + 1).toString();
+    items.push(addGrade);
+    setAddGrade({
+      GradeTitle: '',
+      GradeDetail: '',
+    });
+    updateScoreColumn(items);
+  };
   return (
     <div>
       <h1>Grade Structure</h1>
@@ -78,24 +104,24 @@ export const CourseGradeStructure = (props) => {
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
                       >
-                        {/* <div className="scoreColumn-thumb">
-                              <img src={thumb} alt={`${name} Thumb`} />
-                            </div> */}
-                        {/* <p>{GradeTitle}</p> */}
                         <Input
                           label='Grade Title'
                           placeholder='Grade Title'
                           value={GradeTitle}
                           disabled={editIndex !== index}
+                          name='GradeTitle'
+                          onChange={changeHandlerEditGrade}
                         />
                         <Input
                           label='Grade Detail'
                           placeholder='Grade Detail'
                           value={GradeDetail}
                           disabled={editIndex !== index}
+                          name='GradeDetail'
+                          onChange={changeHandlerEditGrade}
                         />
                         {/* <p>{GradeDetail}</p> */}
-                        <Button.Group className="button-group">
+                        <Button.Group className='button-group'>
                           <Button onClick={() => DeleteGradeStructure(index)}>
                             Delete
                           </Button>
@@ -123,6 +149,27 @@ export const CourseGradeStructure = (props) => {
           )}
         </Droppable>
       </DragDropContext>
+      <br />
+      <Segment>
+        <Input
+          label='Grade Title'
+          placeholder='Grade Title'
+          name='GradeTitle'
+          onChange={changeHandlerAddGrade}
+          value={addGrade.GradeTitle}
+        />
+        <Input
+          label='Grade Detail'
+          placeholder='Grade Detail'
+          name='GradeDetail'
+          onChange={changeHandlerAddGrade}
+          value={addGrade.GradeDetail}
+        />
+        {/* <p>{GradeDetail}</p> */}
+        <Button className='button-group' onClick={() => AddGradeStructure()}>
+          Add
+        </Button>
+      </Segment>
     </div>
   );
 };
