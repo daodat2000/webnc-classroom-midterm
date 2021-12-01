@@ -95,7 +95,7 @@ export const CourseGradeStructure = (props) => {
                           disabled={editIndex !== index}
                         />
                         {/* <p>{GradeDetail}</p> */}
-                        <Button.Group>
+                        <Button.Group className="button-group">
                           <Button onClick={() => DeleteGradeStructure(index)}>
                             Delete
                           </Button>
