@@ -9,6 +9,10 @@ const usersModels = require('../models/users.models');
 const statusModels = require('../models/statuses.model');
 const gradesModel = require('../models/grades.model');
 const profilesModels = require('../models/profiles.models');
+const studentList = require('../models/studentList.model')
+const Json2csvParser = require("json2csv").Parser;
+const fs = require("fs");
+const csvtojson = require("csvtojson");
 
 router.get('/', verifyToken, async function (req, res) {
   const enrolls = await EnrollMent.find({ userId: req.userId });
@@ -74,13 +78,13 @@ router.get('/news/:courseId', verifyToken, async function (req, res) {
 
 router.get('/grades/:courseId', verifyToken, async function (req, res) {
   const { courseId } = req.params;
-  console.log(typeof(mongoose.Types.ObjectId(req.userId)))
-  const user = await profilesModels.findOne({userId:mongoose.Types.ObjectId(req.userId)})
+  console.log(typeof (mongoose.Types.ObjectId(req.userId)))
+  const user = await profilesModels.findOne({ userId: mongoose.Types.ObjectId(req.userId) })
   console.log("user")
- 
+
   console.log(user);
   //console.log(courseId)
-  const grades = await gradesModel.find({courseId:courseId,studentId:user.studentId});
+  const grades = await gradesModel.find({ courseId: courseId, studentId: user.studentId });
   console.log(grades);
   res.json({ grades: grades });
 });
@@ -209,5 +213,77 @@ router.post('/add', verifyToken, async function (req, res) {
     return res.status(500).json({ message: 'Internal server error' });
   }
 });
+
+router.post('/downloadStudentList/', verifyToken, async function (req, res) {
+  const { students, fileName } = req.body;
+  if (!students || !fileName) {
+    return res.status(400).json({ message: 'Missing required value' });
+  }
+  try {
+    const profileStudents = await Promise.all(
+      students.map(async (student) => {
+        const user = await profilesModels.find({
+          userId: mongoose.Types.ObjectId(student._id),
+        });
+        return user[0];
+      })
+    );
+
+    studentList = [];
+    for (let i = 0; i < students.length; i++) {
+      studentList.push({ studentName: students[i].name, studentId: profileStudents[i].studentId })
+    }
+    console.log(studentList);
+    const json2csvParser = new Json2csvParser({ header: true });
+    const csvData = json2csvParser.parse(studentList);
+
+    fs.writeFile(fileName, csvData, function (error) {
+      if (error) throw error;
+      console.log("Write successfully!");
+    });
+    return res.json({
+      message: 'Write successfully!',
+    });
+  } catch (error) {
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+
+router.post('/uploadStudentList/', verifyToken, async function (req, res) {
+  const { fileName, courseId } = req.body;
+  if (!fileName) {
+    return res.status(400).json({ message: 'Missing required value' });
+  }
+  try {
+
+
+    csvtojson()
+      .fromFile(fileName)
+      .then(csvData => {
+        //console.log(csvData);
+        csvData.map(async (s)=>{
+          const student = new studentList({
+            courseId:mongoose.Types.ObjectId(courseId),
+            studentId:s.studentId,
+            fullName:s.studentName
+          });
+          console.log(student)
+          await student.save();
+        })
+      });
+     
+
+
+
+
+    return res.json({
+      message: 'Read successfully!',
+    });
+  } catch (error) {
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 
 module.exports = router;

@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
 import { Button, List, Form } from 'semantic-ui-react';
+import { Icon, Modal } from 'semantic-ui-react';
 import axios from 'axios';
 
 export const CourseMember = ({ Students, Teachers, CourseId }) => {
   console.log(Teachers);
+  console.log(Students);
+  const [open, setOpen] = useState(false);
+  const [fileName, setfileName] = useState("");
 
   const { REACT_APP_SERVER_URL } = process.env;
 
@@ -30,6 +34,46 @@ export const CourseMember = ({ Students, Teachers, CourseId }) => {
       }
     }
   };
+  const downloadStudentList = async () => {
+
+    try {
+      const response = await axios.post(
+        `${REACT_APP_SERVER_URL}/course/downloadStudentList`,
+        {
+          students: Students,
+          fileName: fileName
+        }
+      );
+      setfileName("");
+      setOpen(false);
+      console.log(response.data);
+    } catch (error) {
+      if (error.response) {
+        console.log(error.response.data);
+      }
+    }
+  };
+
+  const upoadStudentList = async () => {
+
+    try {
+      const response = await axios.post(
+        `${REACT_APP_SERVER_URL}/course/uploadStudentList`,
+        {
+          fileName: fileName,
+          courseId: CourseId
+        }
+      );
+      setfileName("");
+      setOpen(false);
+      console.log(response.data);
+    } catch (error) {
+      if (error.response) {
+        console.log(error.response.data);
+      }
+    }
+  };
+
   return (
     <div>
       <Form>
@@ -63,6 +107,47 @@ export const CourseMember = ({ Students, Teachers, CourseId }) => {
         ))}
       </List>
       <h1>Students</h1>
+      <Modal
+        onClose={() => setOpen(false)}
+        onOpen={() => setOpen(true)}
+        open={open}
+        trigger={
+          <Button basic>
+            <Icon name='add' />
+            Download/Upload
+          </Button>
+        }
+      >
+        <Modal.Header>Download</Modal.Header>
+        <Modal.Content>
+          <Modal.Description>
+            <Form>
+              <Form.Field>
+                <label>Tên file:</label>
+                <input
+                  placeholder='filename1'
+                  name='filename1'
+                  onChange={(event) => setfileName(event.target.value)}
+                />
+              </Form.Field>
+            </Form>
+          </Modal.Description>
+        </Modal.Content>
+        <Modal.Actions>
+          <Button onClick={() => setOpen(false)}>Hủy</Button>
+          <Button onClick={downloadStudentList} positive>
+            Download
+          </Button>
+          <Button onClick={upoadStudentList} positive>
+            Upload
+          </Button>
+        </Modal.Actions>
+      </Modal>
+
+
+
+
+     
       <List>
         {Students.map((student, i) => (
           <List.Item key={i}>
