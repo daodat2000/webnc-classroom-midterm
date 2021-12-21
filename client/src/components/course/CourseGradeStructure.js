@@ -45,6 +45,11 @@ export const CourseGradeStructure = (props) => {
   const [addGrade, setAddGrade] = useState({
     GradeTitle: '',
     GradeDetail: '',
+    // courseId: { type: Schema.Types.ObjectId, ref: 'Course' },
+    // detail: Number,
+    // title: String,
+    // finalized:Boolean,
+    // index: Number,
   });
   useEffect((props) => {
     LoadGradeStructure();

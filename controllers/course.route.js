@@ -83,7 +83,7 @@ router.get('/gradestructure/:courseId', verifyToken, async function (req, res) {
   console.log("Grade structure test");
   console.log(courseId);
   //const structure = gradestructureModel({courseId});
-  const data = await gradestructureModel.find({courseId});
+  const data = await gradestructureModel.find({courseId}).sort('index');
   console.log(data);
   return res.json({gradeStruture: data});
 });
