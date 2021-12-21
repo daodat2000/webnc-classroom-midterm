@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import './CourseGradeStructure.css';
 import { Button, Input, Segment } from 'semantic-ui-react';
-
+import { useEffect } from 'react';
+import axios from 'axios';
+const { REACT_APP_SERVER_URL } = process.env;
 const sampleScoreColumn = [
   {
     id: '1',
@@ -31,39 +33,56 @@ const sampleScoreColumn = [
   },
 ];
 
+
+
 export const CourseGradeStructure = (props) => {
-  const [scoreColumn, updateScoreColumn] = useState(sampleScoreColumn);
+  console.log(props);
+  //using for course grade structure
+  //
+  const [gradeStructure,setGradestructure] = useState([]);
+  //const [scoreColumn, updateScoreColumn] = useState(sampleScoreColumn);
   const [editIndex, setEditIndex] = useState(1);
   const [addGrade, setAddGrade] = useState({
     GradeTitle: '',
     GradeDetail: '',
   });
+  useEffect((props) => {
+    LoadGradeStructure();
+  }, []);
   const changeHandlerAddGrade = (event) => {
     setAddGrade({ ...addGrade, [event.target.name]: event.target.value });
   };
   const changeHandlerEditGrade = (event) => {
-    const items = Array.from(scoreColumn);
+    const items = Array.from(gradeStructure);
     items[editIndex] = {
       ...items[editIndex],
       [event.target.name]: event.target.value,
     };
-    updateScoreColumn(items);
+    setGradestructure(items);
   };
   function handleOnDragEnd(result) {
     if (!result.destination) return;
 
-    const items = Array.from(scoreColumn);
+    const items = Array.from(gradeStructure);
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
 
-    updateScoreColumn(items);
+    setGradestructure(items);
   }
   const DeleteGradeStructure = (index) => {
     console.log(index);
-    const items = Array.from(scoreColumn);
+    const items = Array.from(gradeStructure);
     items.splice(index, 1);
-
-    updateScoreColumn(items);
+    setGradestructure(items);
+  };
+  const FinalizedGradeStructure = (index) => {
+   
+    const items = Array.from(gradeStructure);
+    
+    items[index].finalized = true;
+    console.log(index);
+    console.log(items[index]);
+    setGradestructure(items);
   };
   const EditGradeStructure = (index) => {
     console.log(index);
@@ -74,7 +93,7 @@ export const CourseGradeStructure = (props) => {
     setEditIndex(-1);
   };
   const AddGradeStructure = () => {
-    const items = Array.from(scoreColumn);
+    const items = Array.from(gradeStructure);
     const newgrade = addGrade;
     newgrade.id = (items.length + 1).toString();
     items.push(addGrade);
@@ -82,7 +101,38 @@ export const CourseGradeStructure = (props) => {
       GradeTitle: '',
       GradeDetail: '',
     });
-    updateScoreColumn(items);
+    setGradestructure(items);
+  };
+  const LoadGradeStructure = async () => {
+    try {
+      const response = await axios.get(
+        `${REACT_APP_SERVER_URL}/course/gradestructure/6168f2f5b0c3a02a75af3394`
+      );
+      console.log("grade structure")
+      console.log(response.data)
+      setGradestructure(response.data.gradeStruture)
+    } catch (error) {
+      if (error.response) return error.response.data;
+      else return { success: false, message: error.message };
+    }
+  };
+  const SubmitGradeStructure = async () => {
+    try {
+      const response = await axios.post(
+        `${REACT_APP_SERVER_URL}/course/gradestructure/edit`,
+        {
+          gradeStructure: gradeStructure,
+        }
+      );
+      //setEmailState('');
+      alert("Successfully Updated");
+      return response.data;
+    } catch (error) {
+      alert("Error Occured");
+      if (error.response) {
+        return error.response.data;
+      }
+    }
   };
   return (
     <div>
@@ -95,9 +145,9 @@ export const CourseGradeStructure = (props) => {
               {...provided.droppableProps}
               ref={provided.innerRef}
             >
-              {scoreColumn.map(({ id, GradeTitle, GradeDetail }, index) => {
+              {gradeStructure.map(({ _id, title, detail }, index) => {
                 return (
-                  <Draggable key={id} draggableId={id} index={index}>
+                  <Draggable key={_id} draggableId={_id} index={index}>
                     {(provided) => (
                       <li
                         ref={provided.innerRef}
@@ -107,7 +157,7 @@ export const CourseGradeStructure = (props) => {
                         <Input
                           label='Grade Title'
                           placeholder='Grade Title'
-                          value={GradeTitle}
+                          value={title}
                           disabled={editIndex !== index}
                           name='GradeTitle'
                           onChange={changeHandlerEditGrade}
@@ -115,7 +165,7 @@ export const CourseGradeStructure = (props) => {
                         <Input
                           label='Grade Detail'
                           placeholder='Grade Detail'
-                          value={GradeDetail}
+                          value={detail}
                           disabled={editIndex !== index}
                           name='GradeDetail'
                           onChange={changeHandlerEditGrade}
@@ -138,6 +188,10 @@ export const CourseGradeStructure = (props) => {
                               Save
                             </Button>
                           )}
+                          <Button.Or />
+                          <Button onClick={() => FinalizedGradeStructure(index)}>
+                            Finalize
+                          </Button>
                         </Button.Group>
                       </li>
                     )}
@@ -170,6 +224,9 @@ export const CourseGradeStructure = (props) => {
           Add
         </Button>
       </Segment>
+        <Button className='button-group' onClick={() => SubmitGradeStructure()}>
+          Submit
+        </Button>
     </div>
   );
 };

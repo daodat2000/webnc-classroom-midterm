@@ -13,6 +13,7 @@ const studentList = require('../models/studentList.model')
 const Json2csvParser = require("json2csv").Parser;
 const fs = require("fs");
 const csvtojson = require("csvtojson");
+const gradestructureModel = require('../models/gradestructure.model');
 
 router.get('/', verifyToken, async function (req, res) {
   const enrolls = await EnrollMent.find({ userId: req.userId });
@@ -76,18 +77,59 @@ router.get('/news/:courseId', verifyToken, async function (req, res) {
   res.json({ status: news });
 });
 
-router.get('/grades/:courseId', verifyToken, async function (req, res) {
-  const { courseId } = req.params;
-  console.log(typeof (mongoose.Types.ObjectId(req.userId)))
-  const user = await profilesModels.findOne({ userId: mongoose.Types.ObjectId(req.userId) })
-  console.log("user")
 
-  console.log(user);
-  //console.log(courseId)
-  const grades = await gradesModel.find({ courseId: courseId, studentId: user.studentId });
-  console.log(grades);
-  res.json({ grades: grades });
+router.get('/gradestructure/:courseId', verifyToken, async function (req, res) {
+  const { courseId } = req.params;
+  console.log("Grade structure test");
+  console.log(courseId);
+  //const structure = gradestructureModel({courseId});
+  const data = await gradestructureModel.find({courseId});
+  console.log(data);
+  return res.json({gradeStruture: data});
 });
+
+router.post('/gradestructure/edit', verifyToken, async function (req, res) {
+  console.log(req.body);
+  //console.log("test courseId");
+  const courseId = req.body.gradeStructure[0].courseId;
+
+
+  const gradeStructure = req.body.gradeStructure;
+  gradeStructure.forEach(async (item, id) =>{
+    gradeStructure[id].index = id + 1;
+  });
+  console.log(gradeStructure);
+
+  if (req.body.gradeStructure){
+    gradestructureModel.find({ courseId: courseId }).remove().exec();
+  }
+
+  console.log(gradeStructure);
+  await Promise.all(
+    gradeStructure.map(async (item) => {
+      const structure = await new gradestructureModel(item);
+      structure.save();
+    })
+  );
+  return res.json({gradeStruture: req.body});
+});
+
+// router.get('/grades/:courseId', verifyToken, async function (req, res) {
+//   const { courseId } = req.params;
+//   console.log(typeof (mongoose.Types.ObjectId(req.userId)))
+//   const user = await profilesModels.findOne({ userId: mongoose.Types.ObjectId(req.userId) })
+//   console.log("user")
+
+//   console.log(user);
+//   //console.log(courseId)
+//   const grades = await gradesModel.find({ courseId: courseId, studentId: user.studentId });
+//   console.log(grades);
+//   res.json({ grades: grades });
+// });
+
+
+
+
 
 router.get('/join/:courseId', verifyToken, async function (req, res) {
   const { role } = req.query;
@@ -229,7 +271,7 @@ router.post('/downloadStudentList/', verifyToken, async function (req, res) {
       })
     );
 
-    studentList = [];
+    let studentList = [];
     for (let i = 0; i < students.length; i++) {
       studentList.push({ studentName: students[i].name, studentId: profileStudents[i].studentId })
     }

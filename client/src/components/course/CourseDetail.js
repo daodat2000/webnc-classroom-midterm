@@ -14,8 +14,7 @@ export const CourseDetail = (props) => {
   const [students, setStudents] = useState([]);
   const [news,setNews] = useState([]);
   const [grades,setGrades] = useState([]);
-  //using for course grade structure
-  //const [gradeStructure,setGradeStructure] = useState([]);
+ 
   const submitStatus = async (content) => {
     console.log('add status');
     try {
@@ -43,6 +42,7 @@ export const CourseDetail = (props) => {
       const response = await axios.get(
         `${REACT_APP_SERVER_URL}/course/news/${props.Course._id}`
       );
+      console.log("Load News");
       console.log(response.data.status)
       setNews(response.data.status)
     } catch (error) {
@@ -64,17 +64,19 @@ export const CourseDetail = (props) => {
     }
   };
 
-
-
+ 
   useEffect(() => {
     LoadUsers();
   }, []);
   useEffect(() => {
     LoadNews();
   }, []);
-  useEffect(() => {
-    LoadGrades();
-  }, []);
+  // useEffect(() => {
+  //   LoadGrades();
+  // }, []);
+  // useEffect(() => {
+  //   LoadGradeStructure();
+  // }, []);
 
   const handleItemClick = (e, { name }) => setActiveItem(name);
   let content;
@@ -94,7 +96,8 @@ export const CourseDetail = (props) => {
     content = <CourseGrade Grade={grades} ></CourseGrade>
   } else if (activeItem == 'Grade Structure'){
     //We need to load the grade structure, currently not implemented
-    content = <CourseGradeStructure GradeStructure={props}></CourseGradeStructure>
+    content = <CourseGradeStructure>
+    </CourseGradeStructure>
   }
   
   return (
