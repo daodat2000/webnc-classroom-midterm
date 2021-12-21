@@ -88,6 +88,16 @@ router.get('/gradestructure/:courseId', verifyToken, async function (req, res) {
   return res.json({gradeStruture: data});
 });
 
+router.get('/getStudentList/:courseId', verifyToken, async function (req, res) {
+  const { courseId } = req.params;
+  console.log("abc")
+  const stuList = await studentList.find({ courseId})
+  console.log(stuList)
+
+ 
+  res.json({ students:stuList});
+});
+
 router.post('/gradestructure/edit', verifyToken, async function (req, res) {
   console.log(req.body);
   //console.log("test courseId");

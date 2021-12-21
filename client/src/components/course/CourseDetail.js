@@ -93,7 +93,7 @@ export const CourseDetail = (props) => {
   } else if (activeItem === 'Settings') {
     content = <CourseSettings Course={props.Course}></CourseSettings>;
   } else if (activeItem == 'Grades'){
-    content = <CourseGrade Grade={grades} ></CourseGrade>
+    content = <CourseGrade CourseId={props.Course._id} ></CourseGrade>
   } else if (activeItem == 'Grade Structure'){
     //We need to load the grade structure, currently not implemented
     content = <CourseGradeStructure>
