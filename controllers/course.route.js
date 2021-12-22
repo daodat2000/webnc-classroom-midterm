@@ -14,7 +14,7 @@ const Json2csvParser = require("json2csv").Parser;
 const fs = require("fs");
 const csvtojson = require("csvtojson");
 const gradestructureModel = require('../models/gradestructure.model');
-
+const grades = require('../models/grades.model');
 router.get('/', verifyToken, async function (req, res) {
   const enrolls = await EnrollMent.find({ userId: req.userId });
   const courses = await Promise.all(
@@ -80,19 +80,29 @@ router.get('/news/:courseId', verifyToken, async function (req, res) {
 
 router.get('/gradestructure/:courseId', verifyToken, async function (req, res) {
   const { courseId } = req.params;
-  console.log("Grade structure test");
-  console.log(courseId);
+  //console.log("Grade structure test");
+  //console.log(courseId);
   //const structure = gradestructureModel({courseId});
   const data = await gradestructureModel.find({courseId}).sort('index');
   console.log(data);
   return res.json({gradeStruture: data});
 });
 
+router.get('/grades/:courseId', verifyToken, async function (req, res) {
+  const { courseId } = req.params;
+  console.log("Grades test");
+  console.log(courseId);
+  //const structure = gradestructureModel({courseId});
+  const data = await grades.find({courseId});
+  console.log(data);
+  return res.json({grades: data});
+});
+
 router.get('/getStudentList/:courseId', verifyToken, async function (req, res) {
   const { courseId } = req.params;
-  console.log("abc")
+  //console.log("abc")
   const stuList = await studentList.find({ courseId})
-  console.log(stuList)
+  //console.log(stuList)
 
  
   res.json({ students:stuList});
@@ -102,7 +112,6 @@ router.post('/gradestructure/edit', verifyToken, async function (req, res) {
   console.log(req.body);
   //console.log("test courseId");
   const courseId = req.body.gradeStructure[0].courseId;
-
 
   const gradeStructure = req.body.gradeStructure;
   gradeStructure.forEach(async (item, id) =>{

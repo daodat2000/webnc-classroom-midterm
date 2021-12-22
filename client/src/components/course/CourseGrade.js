@@ -8,12 +8,17 @@ export const CourseGrade = (CourseId) => {
   console.log(CourseId)
   const [students,setStudents]=useState([]);
   const [gradeStructure,setGradestructure] = useState([]);
+  const [grades, setGrades] = useState([]);
+  //for table
+  // cosnt [table, setTable] = useState([]);
+
   const LoadData = async () => {
     try {
       const response = await axios.get(
         `${REACT_APP_SERVER_URL}/course/getStudentList/${CourseId.CourseId}`
       );
-      //console.log(response.data)
+      // console.log("Student");
+      // console.log(response.data)
       setStudents(response.data.students);
     } catch (error) {
       if (error.response) return error.response.data;
@@ -35,6 +40,20 @@ export const CourseGrade = (CourseId) => {
     }
   };
 
+  const LoadGrades = async () => {
+    try {
+      const response = await axios.get(
+        `${REACT_APP_SERVER_URL}/course/grades/${CourseId.CourseId}`
+      );
+      console.log("grades")
+      console.log(response.data)
+      setGrades(response.data.grades)
+    } catch (error) {
+      if (error.response) return error.response.data;
+      else return { success: false, message: error.message };
+    }
+  };
+
   useEffect(() => {
     LoadData();
   }, []);
@@ -42,7 +61,14 @@ export const CourseGrade = (CourseId) => {
   useEffect(() => {
     LoadGradeStructure();
   }, []);
-  
+
+  useEffect(() => {
+    LoadGrades();
+    }, []);
+
+  // const colums = [
+  //   {title: "MSSV"}
+  // ]
   
   return (
     <Table striped>
@@ -60,9 +86,16 @@ export const CourseGrade = (CourseId) => {
           <Table.Row>
           <Table.Cell>{student.studentId}</Table.Cell>
           <Table.Cell>{student.fullName}</Table.Cell>
-          {gradeStructure.map((student, i) => (
-         <Table.Cell><Input size="mini"  focus /></Table.Cell>
-         ))}
+          {grades.map((grade, i) => (
+          <Table.Cell><Input 
+            size="mini"  focus 
+            value = {grade.grade}
+            name = "displayName"
+            type = "text"
+            onChange = {(e) => {console.log()}}
+            /></Table.Cell>
+            ))
+         }
         </Table.Row>
         ))}
     </Table.Body>
