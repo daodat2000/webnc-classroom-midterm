@@ -89,18 +89,18 @@ router.get('/gradestructure/:courseId', verifyToken, async function (req, res) {
 
 router.get('/grades/:courseId', verifyToken, async function (req, res) {
   const { courseId } = req.params;
-  console.log("Grades test");
+  console.log('Grades test');
   console.log(courseId);
   //const structure = gradestructureModel({courseId});
-  const data = await grades.find({courseId});
+  const data = await grades.find({ courseId });
   console.log(data);
-  return res.json({grades: data});
+  return res.json({ grades: data });
 });
 
 router.get('/getStudentList/:courseId', verifyToken, async function (req, res) {
   const { courseId } = req.params;
   //console.log("abc")
-  const stuList = await studentList.find({ courseId})
+  const stuList = await studentList.find({ courseId });
   //console.log(stuList)
 
   res.json({ students: stuList });
@@ -352,6 +352,34 @@ router.post('/grade/upload', function (req, res) {
   } catch (error) {
     res.send('ERROR');
   }
+});
+
+router.get('/grade/download/:courseId', async function (req, res) {
+  const courseId = req.params.courseId;
+  const gradeStructure = await gradestructureModel.find({ courseId: courseId });
+  const students = await studentList.find({ courseId: courseId });
+
+  const headers = [{ label: 'MSSV', key: 'studentId' }];
+  gradeStructure.forEach(async (item) => {
+    headers.push({ label: item.title, key: item.title });
+  });
+  const data = [];
+  for (const student of students) {
+    const rowData = { studentId: student.studentId };
+    for (const item of gradeStructure) {
+      const grade = await gradesModel.findOne({
+        studentId: student.studentId,
+        gradeStructureId: item._id,
+      });
+      if (grade) {
+        rowData[item.title] = grade.grade;
+      } else {
+        rowData[item.title] = '';
+      }
+    }
+    data.push(rowData);
+  }
+  res.json({ data, headers });
 });
 
 module.exports = router;
