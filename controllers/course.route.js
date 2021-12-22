@@ -9,10 +9,10 @@ const usersModels = require('../models/users.models');
 const statusModels = require('../models/statuses.model');
 const gradesModel = require('../models/grades.model');
 const profilesModels = require('../models/profiles.models');
-const studentList = require('../models/studentList.model')
-const Json2csvParser = require("json2csv").Parser;
-const fs = require("fs");
-const csvtojson = require("csvtojson");
+const studentList = require('../models/studentList.model');
+const Json2csvParser = require('json2csv').Parser;
+const fs = require('fs');
+const csvtojson = require('csvtojson');
 const gradestructureModel = require('../models/gradestructure.model');
 const grades = require('../models/grades.model');
 router.get('/', verifyToken, async function (req, res) {
@@ -77,15 +77,14 @@ router.get('/news/:courseId', verifyToken, async function (req, res) {
   res.json({ status: news });
 });
 
-
 router.get('/gradestructure/:courseId', verifyToken, async function (req, res) {
   const { courseId } = req.params;
   //console.log("Grade structure test");
   //console.log(courseId);
   //const structure = gradestructureModel({courseId});
-  const data = await gradestructureModel.find({courseId}).sort('index');
+  const data = await gradestructureModel.find({ courseId }).sort('index');
   console.log(data);
-  return res.json({gradeStruture: data});
+  return res.json({ gradeStruture: data });
 });
 
 router.get('/grades/:courseId', verifyToken, async function (req, res) {
@@ -104,8 +103,7 @@ router.get('/getStudentList/:courseId', verifyToken, async function (req, res) {
   const stuList = await studentList.find({ courseId})
   //console.log(stuList)
 
- 
-  res.json({ students:stuList});
+  res.json({ students: stuList });
 });
 
 router.post('/gradestructure/edit', verifyToken, async function (req, res) {
@@ -114,12 +112,12 @@ router.post('/gradestructure/edit', verifyToken, async function (req, res) {
   const courseId = req.body.gradeStructure[0].courseId;
 
   const gradeStructure = req.body.gradeStructure;
-  gradeStructure.forEach(async (item, id) =>{
+  gradeStructure.forEach(async (item, id) => {
     gradeStructure[id].index = id + 1;
   });
   console.log(gradeStructure);
 
-  if (req.body.gradeStructure){
+  if (req.body.gradeStructure) {
     gradestructureModel.find({ courseId: courseId }).remove().exec();
   }
 
@@ -130,7 +128,7 @@ router.post('/gradestructure/edit', verifyToken, async function (req, res) {
       structure.save();
     })
   );
-  return res.json({gradeStruture: req.body});
+  return res.json({ gradeStruture: req.body });
 });
 
 // router.get('/grades/:courseId', verifyToken, async function (req, res) {
@@ -145,10 +143,6 @@ router.post('/gradestructure/edit', verifyToken, async function (req, res) {
 //   console.log(grades);
 //   res.json({ grades: grades });
 // });
-
-
-
-
 
 router.get('/join/:courseId', verifyToken, async function (req, res) {
   const { role } = req.query;
@@ -292,7 +286,10 @@ router.post('/downloadStudentList/', verifyToken, async function (req, res) {
 
     let studentList = [];
     for (let i = 0; i < students.length; i++) {
-      studentList.push({ studentName: students[i].name, studentId: profileStudents[i].studentId })
+      studentList.push({
+        studentName: students[i].name,
+        studentId: profileStudents[i].studentId,
+      });
     }
     console.log(studentList);
     const json2csvParser = new Json2csvParser({ header: true });
@@ -300,7 +297,7 @@ router.post('/downloadStudentList/', verifyToken, async function (req, res) {
 
     fs.writeFile(fileName, csvData, function (error) {
       if (error) throw error;
-      console.log("Write successfully!");
+      console.log('Write successfully!');
     });
     return res.json({
       message: 'Write successfully!',
@@ -310,33 +307,26 @@ router.post('/downloadStudentList/', verifyToken, async function (req, res) {
   }
 });
 
-
 router.post('/uploadStudentList/', verifyToken, async function (req, res) {
   const { fileName, courseId } = req.body;
   if (!fileName) {
     return res.status(400).json({ message: 'Missing required value' });
   }
   try {
-
-
     csvtojson()
       .fromFile(fileName)
-      .then(csvData => {
+      .then((csvData) => {
         //console.log(csvData);
-        csvData.map(async (s)=>{
+        csvData.map(async (s) => {
           const student = new studentList({
-            courseId:mongoose.Types.ObjectId(courseId),
-            studentId:s.studentId,
-            fullName:s.studentName
+            courseId: mongoose.Types.ObjectId(courseId),
+            studentId: s.studentId,
+            fullName: s.studentName,
           });
-          console.log(student)
+          console.log(student);
           await student.save();
-        })
+        });
       });
-     
-
-
-
 
     return res.json({
       message: 'Read successfully!',
@@ -345,6 +335,5 @@ router.post('/uploadStudentList/', verifyToken, async function (req, res) {
     return res.status(500).json({ message: 'Internal server error' });
   }
 });
-
 
 module.exports = router;

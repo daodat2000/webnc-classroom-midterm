@@ -6,19 +6,22 @@ import { CourseSettings } from './CourseSettings';
 import { useState } from 'react';
 import { Grid, Menu, Segment } from 'semantic-ui-react';
 import { CourseGrade } from './CourseGrade';
-import {CourseGradeStructure} from './CourseGradeStructure';
+import { CourseGradeStructure } from './CourseGradeStructure';
 const { REACT_APP_SERVER_URL } = process.env;
 export const CourseDetail = (props) => {
   const [activeItem, setActiveItem] = useState('New Feeds');
   const [teachers, setTeachers] = useState([]);
   const [students, setStudents] = useState([]);
-  const [news,setNews] = useState([]);
-  const [grades,setGrades] = useState([]);
- 
+  const [news, setNews] = useState([]);
+  const [grades, setGrades] = useState([]);
+
   const submitStatus = async (content) => {
     console.log('add status');
     try {
-      await axios.post(`${REACT_APP_SERVER_URL}/course/news`, {content:content, courseId:props.Course._id});
+      await axios.post(`${REACT_APP_SERVER_URL}/course/news`, {
+        content: content,
+        courseId: props.Course._id,
+      });
       LoadNews();
     } catch (error) {
       if (error.response) return error.response.data;
@@ -42,9 +45,9 @@ export const CourseDetail = (props) => {
       const response = await axios.get(
         `${REACT_APP_SERVER_URL}/course/news/${props.Course._id}`
       );
-      console.log("Load News");
-      console.log(response.data.status)
-      setNews(response.data.status)
+      console.log('Load News');
+      console.log(response.data.status);
+      setNews(response.data.status);
     } catch (error) {
       if (error.response) return error.response.data;
       else return { success: false, message: error.message };
@@ -55,16 +58,15 @@ export const CourseDetail = (props) => {
       const response = await axios.get(
         `${REACT_APP_SERVER_URL}/course/grades/${props.Course._id}`
       );
-      console.log("grades")
-      console.log(response.data.grades)
-      setGrades(response.data.grades)
+      console.log('grades');
+      console.log(response.data.grades);
+      setGrades(response.data.grades);
     } catch (error) {
       if (error.response) return error.response.data;
       else return { success: false, message: error.message };
     }
   };
 
- 
   useEffect(() => {
     LoadUsers();
   }, []);
@@ -92,14 +94,15 @@ export const CourseDetail = (props) => {
     content = <CourseNews News={news} onSubmit={submitStatus}></CourseNews>;
   } else if (activeItem === 'Settings') {
     content = <CourseSettings Course={props.Course}></CourseSettings>;
-  } else if (activeItem == 'Grades'){
-    content = <CourseGrade CourseId={props.Course._id} ></CourseGrade>
-  } else if (activeItem == 'Grade Structure'){
+  } else if (activeItem == 'Grades') {
+    content = <CourseGrade CourseId={props.Course._id}></CourseGrade>;
+  } else if (activeItem == 'Grade Structure') {
     //We need to load the grade structure, currently not implemented
-    content = <CourseGradeStructure>
-    </CourseGradeStructure>
+    content = (
+      <CourseGradeStructure Course={props.Course}></CourseGradeStructure>
+    );
   }
-  
+
   return (
     <>
       <br />
