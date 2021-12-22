@@ -4,7 +4,8 @@ const Schema = mongoose.Schema;
 const GradeSchema = mongoose.Schema(
   {
     studentId: { type:  String, ref: 'Profile' },
-    courseId: { type: Schema.Types.ObjectId, ref: 'Course' },
+    courseId: {type: Schema.Types.ObjectId},
+    gradeStructureId: { type: Schema.Types.ObjectId, ref : 'GradeStructure'},
     grade: String,
   },
   {
@@ -12,4 +13,4 @@ const GradeSchema = mongoose.Schema(
   }
 );
 
-module.exports = Grade = mongoose.model('grades', GradeSchema);
+module.exports = Grade = mongoose.model('grade', GradeSchema);
