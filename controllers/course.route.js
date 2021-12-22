@@ -275,7 +275,7 @@ router.post('/downloadStudentList/', verifyToken, async function (req, res) {
     return res.status(400).json({ message: 'Missing required value' });
   }
   try {
-    const headers = [{ label: 'MSSV', key: 'studentId' },{label:"Họ và tên", key:'studentName'}];
+    const headers = [{ label: 'studentId', key: 'studentId' },{label:"studentName", key:'studentName'}];
     const profileStudents = await Promise.all(
       students.map(async (student) => {
         const user = await profilesModels.find({
@@ -301,31 +301,36 @@ router.post('/downloadStudentList/', verifyToken, async function (req, res) {
 });
 
 router.post('/uploadStudentList/', verifyToken, async function (req, res) {
-  const { fileName, courseId } = req.body;
-  if (!fileName) {
-    return res.status(400).json({ message: 'Missing required value' });
-  }
+  console.log('upload')
   try {
+    // IN REQ.FILES.”YOUR_FILE_NAME” WILL BE PRESENT
+    const file = req.files;
+    const { courseId } = req.body;
+    console.log( courseId);  
+    let csvData = req.files.file.data.toString('utf8');
     csvtojson()
-      .fromFile(fileName)
-      .then((csvData) => {
-        //console.log(csvData);
-        csvData.map(async (s) => {
-          const student = new studentList({
+      .fromString(csvData)
+      .then(async (students) => {
+        console.log('upload')
+        console.log(students)
+        for (const student of students) {
+         
+          const s = new studentList({
+            studentId: student.studentId,
             courseId: mongoose.Types.ObjectId(courseId),
-            studentId: s.studentId,
-            fullName: s.studentName,
+            fullName: student.studentName
           });
-          console.log(student);
-          await student.save();
-        });
-      });
 
-    return res.json({
-      message: 'Read successfully!',
-    });
+          console.log(s)
+          await s.save();
+        }
+       
+      
+
+      });
+    return res.send('OK');
   } catch (error) {
-    return res.status(500).json({ message: 'Internal server error' });
+    res.status(400).send('ERROR');
   }
 });
 

@@ -1,8 +1,9 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, List, Form } from 'semantic-ui-react';
 import { Icon, Modal } from 'semantic-ui-react';
 import axios from 'axios';
 import { CSVLink } from 'react-csv';
+import { Input } from 'semantic-ui-react';
 
 export const CourseMember = ({ Students, Teachers, CourseId }) => {
   console.log(Teachers);
@@ -79,7 +80,7 @@ export const CourseMember = ({ Students, Teachers, CourseId }) => {
     ExportStudentList();
   }, []);
   const ExportStudentList = async () => {
-  
+
     try {
       const response = await axios.post(
         `${REACT_APP_SERVER_URL}/course/downloadStudentList`,
@@ -104,6 +105,27 @@ export const CourseMember = ({ Students, Teachers, CourseId }) => {
     }
 
   };
+
+  const uploadFileHandler = (event) => {
+    var formData = new FormData();
+    formData.append('file', event.target.files[0]);
+    formData.append('courseId', CourseId);
+    // API CALL
+    axios({
+      method: 'post',
+      url: `${REACT_APP_SERVER_URL}/course/uploadStudentList`,
+      data: formData,
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+      .then((response) => response.json())
+      .then((result) => {
+        console.log('Success:', result);
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+  };
+
 
   return (
     <div>
@@ -138,52 +160,21 @@ export const CourseMember = ({ Students, Teachers, CourseId }) => {
         ))}
       </List>
       <h1>Students</h1>
-      <Modal
-        onClose={() => setOpen(false)}
-        onOpen={() => setOpen(true)}
-        open={open}
-        trigger={
-          <Button basic>
-            <Icon name='add' />
-            Download/Upload
-          </Button>
-        }
-      >
-        <Modal.Header>Download</Modal.Header>
-        <Modal.Content>
-          <Modal.Description>
-            <Form>
-              <Form.Field>
-                <label>Tên file:</label>
-                <input
-                  placeholder='filename1'
-                  name='filename1'
-                  onChange={(event) => setfileName(event.target.value)}
-                />
-              </Form.Field>
-            </Form>
-          </Modal.Description>
-        </Modal.Content>
-        <Modal.Actions>
-          <Button onClick={() => setOpen(false)}>Hủy</Button>
-          <Button onClick={downloadStudentList} positive>
-            Download
-          </Button>
-          <Button onClick={upoadStudentList} positive>
-            Upload
-          </Button>
-        </Modal.Actions>
-      </Modal>
       {csvStudentList !== null ? (
         <CSVLink {...csvStudentList}>Export to CSV</CSVLink>
       ) : (
         ''
       )}
 
+      <Input
+        type='file'
+        onChange={(event) => uploadFileHandler(event)}
+      />
 
 
 
-     
+
+
       <List>
         {Students.map((student, i) => (
           <List.Item key={i}>
