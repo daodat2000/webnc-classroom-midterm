@@ -326,4 +326,22 @@ router.post('/uploadStudentList/', verifyToken, async function (req, res) {
   }
 });
 
+router.post('/grade/upload', function (req, res) {
+  try {
+    // IN REQ.FILES.”YOUR_FILE_NAME” WILL BE PRESENT
+    const file = req.files;
+    const bodyData = req.body;
+    console.log(file);
+    console.log(bodyData);
+    csvData = req.files.file.data.toString('utf8');
+    return csvtojson()
+      .fromString(csvData)
+      .then((json) => {
+        return res.status(201).json({ csv: csvData, json: json });
+      });
+  } catch (error) {
+    res.send('ERROR');
+  }
+});
+
 module.exports = router;
