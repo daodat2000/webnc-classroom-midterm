@@ -340,23 +340,37 @@ router.post('/grade/upload', function (req, res) {
   try {
     // IN REQ.FILES.”YOUR_FILE_NAME” WILL BE PRESENT
     const file = req.files;
-    const bodyData = req.body;
-    console.log(file);
-    console.log(bodyData);
+    const { gradeStructureId, courseId } = req.body;
+    console.log(gradeStructureId, courseId);
+    if (gradeStructureId) {
+      gradesModel.find({ gradeStructureId: gradeStructureId }).remove().exec();
+    }
     csvData = req.files.file.data.toString('utf8');
-    return csvtojson()
+    csvtojson()
       .fromString(csvData)
-      .then((json) => {
-        return res.status(201).json({ csv: csvData, json: json });
+      .then(async (grades) => {
+        for (const grade of grades) {
+          console.log(grade);
+          const newGrade = new gradesModel({
+            studentId: grade.MSSV,
+            courseId: courseId,
+            gradeStructureId: gradeStructureId,
+            grade: grade.Grade,
+          });
+          await newGrade.save();
+        }
       });
+    return res.send('OK');
   } catch (error) {
-    res.send('ERROR');
+    res.status(400).send('ERROR');
   }
 });
 
 router.get('/grade/download/:courseId', async function (req, res) {
   const courseId = req.params.courseId;
-  const gradeStructure = await gradestructureModel.find({ courseId: courseId });
+  const gradeStructure = await gradestructureModel
+    .find({ courseId: courseId })
+    .sort('index');
   const students = await studentList.find({ courseId: courseId });
 
   const headers = [{ label: 'MSSV', key: 'studentId' }];
@@ -380,6 +394,71 @@ router.get('/grade/download/:courseId', async function (req, res) {
     data.push(rowData);
   }
   res.json({ data, headers });
+});
+
+router.get('/gradeboard/:courseId', async function (req, res) {
+  const courseId = req.params.courseId;
+  const gradeStructure = await gradestructureModel
+    .find({ courseId: courseId })
+    .sort('index');
+  const students = await studentList.find({ courseId: courseId });
+
+  const data = [];
+  for (const student of students) {
+    let total = 0;
+    const isEmpty = false;
+    const grades = [];
+    for (const item of gradeStructure) {
+      const grade = await gradesModel.findOne({
+        studentId: student.studentId,
+        gradeStructureId: item._id,
+      });
+      if (grade) {
+        total += (Number(grade.grade) * item.detail) / 100;
+        grades.push(grade);
+      } else {
+        const newGrade = {
+          studentId: student.studentId,
+          gradeStructureId: item._id,
+          courseId: courseId,
+          grade: '',
+        };
+        grades.push(newGrade);
+      }
+    }
+    const rowData = {
+      studentId: student.studentId,
+      studentName: student.fullName,
+      grades: grades,
+      total: parseFloat(total).toFixed(2),
+    };
+    data.push(rowData);
+  }
+  res.json({ data });
+});
+
+router.post('/grade/update', async function (req, res) {
+  try {
+    const { studentId, gradeStructureId, courseId, grade } = req.body;
+
+    if (gradeStructureId && studentId) {
+      gradesModel
+        .find({ gradeStructureId: gradeStructureId, studentId: studentId })
+        .remove()
+        .exec();
+    }
+
+    const newGrade = new gradesModel({
+      studentId: studentId,
+      courseId: courseId,
+      gradeStructureId: gradeStructureId,
+      grade: grade,
+    });
+    await newGrade.save();
+    return res.send('OK');
+  } catch (error) {
+    res.status(400).send('ERROR');
+  }
 });
 
 module.exports = router;

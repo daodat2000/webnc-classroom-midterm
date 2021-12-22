@@ -12,8 +12,26 @@ export const CourseGrade = (CourseId) => {
   const [gradeStructure, setGradestructure] = useState([]);
   const [grades, setGrades] = useState([]);
   const [csvGrades, setCsvGrades] = useState(null);
-  //for table
-  // cosnt [table, setTable] = useState([]);
+  const uploadFileHandler = (event, gradeStructureid) => {
+    var formData = new FormData();
+    formData.append('file', event.target.files[0]);
+    formData.append('gradeStructureId', gradeStructureid);
+    formData.append('courseId', CourseId.CourseId);
+    // API CALL
+    axios({
+      method: 'post',
+      url: `${REACT_APP_SERVER_URL}/course/grade/upload`,
+      data: formData,
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+      .then((response) => response.json())
+      .then((result) => {
+        console.log('Success:', result);
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+  };
 
   const LoadData = async () => {
     try {
@@ -46,11 +64,10 @@ export const CourseGrade = (CourseId) => {
   const LoadGrades = async () => {
     try {
       const response = await axios.get(
-        `${REACT_APP_SERVER_URL}/course/grades/${CourseId.CourseId}`
+        `${REACT_APP_SERVER_URL}/course/gradeboard/${CourseId.CourseId}`
       );
-      console.log('grades');
       console.log(response.data);
-      setGrades(response.data.grades);
+      setGrades(response.data.data);
     } catch (error) {
       if (error.response) return error.response.data;
       else return { success: false, message: error.message };
@@ -90,6 +107,21 @@ export const CourseGrade = (CourseId) => {
       alert('Error downloading');
     }
   };
+  const updateGrade = async (grade, studentId, gradeStructureId) => {
+    try {
+      const response = await axios.post(
+        `${REACT_APP_SERVER_URL}/course/grade/update`,
+        {
+          studentId: studentId,
+          gradeStructureId: gradeStructureId,
+          grade: grade,
+          courseId: CourseId.CourseId,
+        }
+      );
+    } catch (error) {
+      alert('Error update');
+    }
+  };
   return (
     <div>
       <Table striped>
@@ -100,27 +132,34 @@ export const CourseGrade = (CourseId) => {
             {gradeStructure.map((student, i) => (
               <Table.HeaderCell>{student.title}</Table.HeaderCell>
             ))}
+            <Table.HeaderCell>Total</Table.HeaderCell>
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {students.map((student, i) => (
+          {grades.map((student, i) => (
             <Table.Row>
               <Table.Cell>{student.studentId}</Table.Cell>
-              <Table.Cell>{student.fullName}</Table.Cell>
-              {grades.map((grade, i) => (
+              <Table.Cell>{student.studentName}</Table.Cell>
+              {student.grades.map((grade, i) => (
                 <Table.Cell>
                   <Input
                     size='mini'
                     focus
-                    value={grade.grade}
+                    defaultValue={grade.grade}
                     name='displayName'
                     type='text'
                     onChange={(e) => {
-                      console.log();
+                      console.log(e.target.value);
+                      updateGrade(
+                        e.target.value,
+                        student.studentId,
+                        grade.gradeStructureId
+                      );
                     }}
                   />
                 </Table.Cell>
               ))}
+              <Table.Cell>{student.total}</Table.Cell>
             </Table.Row>
           ))}
         </Table.Body>
@@ -130,6 +169,15 @@ export const CourseGrade = (CourseId) => {
       ) : (
         ''
       )}
+      {gradeStructure.map((gt, i) => (
+        <p>
+          <Input
+            label={gt.title}
+            type='file'
+            onChange={(event) => uploadFileHandler(event, gt._id)}
+          />
+        </p>
+      ))}
     </div>
   );
 };
