@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { Button, List, Form } from 'semantic-ui-react';
 import { Icon, Modal } from 'semantic-ui-react';
 import axios from 'axios';
+import { CSVLink } from 'react-csv';
 
 export const CourseMember = ({ Students, Teachers, CourseId }) => {
   console.log(Teachers);
   console.log(Students);
   const [open, setOpen] = useState(false);
   const [fileName, setfileName] = useState("");
-
+  const [csvStudentList, setCsvStudentList] = useState(null);
   const { REACT_APP_SERVER_URL } = process.env;
 
   const [emailState, setEmailState] = useState('');
@@ -72,6 +73,36 @@ export const CourseMember = ({ Students, Teachers, CourseId }) => {
         console.log(error.response.data);
       }
     }
+  };
+
+  useEffect(() => {
+    ExportStudentList();
+  }, []);
+  const ExportStudentList = async () => {
+  
+    try {
+      const response = await axios.post(
+        `${REACT_APP_SERVER_URL}/course/downloadStudentList`,
+        {
+          students: Students,
+        }
+      );
+      setfileName("");
+      setOpen(false);
+      console.log(response.data);
+
+      setCsvStudentList({
+        data: response.data.data,
+        headers: response.data.headers,
+        filename: 'studentList.csv',
+      });
+
+    } catch (error) {
+      if (error.response) {
+        console.log(error.response.data);
+      }
+    }
+
   };
 
   return (
@@ -143,6 +174,11 @@ export const CourseMember = ({ Students, Teachers, CourseId }) => {
           </Button>
         </Modal.Actions>
       </Modal>
+      {csvStudentList !== null ? (
+        <CSVLink {...csvStudentList}>Export to CSV</CSVLink>
+      ) : (
+        ''
+      )}
 
 
 

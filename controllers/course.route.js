@@ -270,11 +270,12 @@ router.post('/add', verifyToken, async function (req, res) {
 });
 
 router.post('/downloadStudentList/', verifyToken, async function (req, res) {
-  const { students, fileName } = req.body;
-  if (!students || !fileName) {
+  const { students } = req.body;
+  if (!students) {
     return res.status(400).json({ message: 'Missing required value' });
   }
   try {
+    const headers = [{ label: 'MSSV', key: 'studentId' },{label:"Họ và tên", key:'studentName'}];
     const profileStudents = await Promise.all(
       students.map(async (student) => {
         const user = await profilesModels.find({
@@ -292,16 +293,8 @@ router.post('/downloadStudentList/', verifyToken, async function (req, res) {
       });
     }
     console.log(studentList);
-    const json2csvParser = new Json2csvParser({ header: true });
-    const csvData = json2csvParser.parse(studentList);
-
-    fs.writeFile(fileName, csvData, function (error) {
-      if (error) throw error;
-      console.log('Write successfully!');
-    });
-    return res.json({
-      message: 'Write successfully!',
-    });
+    const data=studentList;
+    return res.json({ data, headers });
   } catch (error) {
     return res.status(500).json({ message: 'Internal server error' });
   }
