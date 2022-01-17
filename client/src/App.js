@@ -8,12 +8,14 @@ import AuthRoute from './components/routing/AuthRoute';
 import ProtectedRoute from './components/routing/ProtectedRoute';
 import { Course } from './components/course/Course';
 import { Account } from './components/account/Account';
+import { AdminPage } from './components/admin/AdminPage';
 import MenuUI from './components/MenuUI';
 function App() {
   return (
     <AuthContextProvider>
       <Router>
         <Switch>
+          <ProtectedRoute exact path='/admin' component={AdminPage} />
           <AuthRoute exact path='/login' component={Login} />
           <AuthRoute exact path='/register' component={Register} />
           <MenuUI>

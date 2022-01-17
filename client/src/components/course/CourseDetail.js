@@ -8,12 +8,14 @@ import { Grid, Menu, Segment } from 'semantic-ui-react';
 import { CourseGrade } from './CourseGrade';
 import { CourseGradeStructure } from './CourseGradeStructure';
 import { CourseGradeStudent } from './CourseGradeStudent';
+import { CourseNotifications} from './CourseNotifications';
 const { REACT_APP_SERVER_URL } = process.env;
 export const CourseDetail = (props) => {
   const [activeItem, setActiveItem] = useState('New Feeds');
   const [teachers, setTeachers] = useState([]);
   const [students, setStudents] = useState([]);
   const [news, setNews] = useState([]);
+  const [notifications, setNotifications] = useState([]);
   const [grades, setGrades] = useState([]);
   const [isRoleTeacher,setIsRoleTeacher] = useState(false);
 
@@ -25,11 +27,18 @@ export const CourseDetail = (props) => {
         courseId: props.Course._id,
       });
       LoadNews();
+      //update notification 
+      await axios.post(`${REACT_APP_SERVER_URL}/course/notifications`, {
+        content: "đă đăng một bình luận trong khoá học của bạn", //fix thanh da cong bo diem "exam"... khi cong bo diem
+        courseId: props.Course._id,
+      });
+      LoadNotifications();
     } catch (error) {
       if (error.response) return error.response.data;
       else return { success: false, message: error.message };
     }
   };
+
   const LoadUsers = async () => {
     try {
       const response = await axios.get(
@@ -55,6 +64,20 @@ export const CourseDetail = (props) => {
       else return { success: false, message: error.message };
     }
   };
+  const LoadNotifications= async () => {
+    try {
+      const response = await axios.get(
+        `${REACT_APP_SERVER_URL}/course/notifications/${props.Course._id}`
+      );
+      console.log('Load Notification');
+      // console.log(response.data.notification);
+      // console.log(response.data.notification);
+      setNotifications(response.data.notification);
+    } catch (error) {
+      if (error.response) return error.response.data;
+      else return { success: false, message: error.message };
+    }
+  }
   const LoadGrades = async () => {
     try {
       const response = await axios.get(
@@ -96,9 +119,9 @@ export const CourseDetail = (props) => {
   useEffect(() => {
     LoadNews();
   }, []);
-  // useEffect(() => {
-  //   LoadGrades();
-  // }, []);
+  useEffect(() => {
+    LoadNotifications();
+  }, []);
   // useEffect(() => {
   //   LoadGradeStructure();
   // }, []);
@@ -127,12 +150,12 @@ export const CourseDetail = (props) => {
    
   } else if (activeItem == 'Grade Structure') {
     //We need to load the grade structure, currently not implemented
-    //if(isRoleTeacher){
-      content = (
-        <CourseGradeStructure Course={props.Course} isTeacher={isRoleTeacher} ></CourseGradeStructure>
-      );
-    //}
-   
+    content = (
+      <CourseGradeStructure Course={props.Course}></CourseGradeStructure>
+    );
+  } else if (activeItem == 'Notifications') {
+    //update sau
+    content = <CourseNotifications Notifications={notifications}></CourseNotifications>;
   }
 
   return (
@@ -141,6 +164,11 @@ export const CourseDetail = (props) => {
       <Grid container>
         <Grid.Column width={4}>
           <Menu fluid vertical tabular pointing color='blue'>
+          <Menu.Item
+              name='Notifications'
+              active={activeItem === 'Notifications'}
+              onClick={handleItemClick}
+            />
             <Menu.Item
               name='New Feeds'
               active={activeItem === 'New Feeds'}
