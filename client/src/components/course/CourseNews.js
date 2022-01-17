@@ -5,7 +5,7 @@ import { Form } from 'semantic-ui-react'
 import { List } from 'semantic-ui-react'
 
 export const CourseNews = ({ News,onSubmit }) => {
-  console.log(News[0])
+  //console.log(News[0])
   const [content,setContent]=useState("");
   const submitStatus =() =>{
     onSubmit(content)

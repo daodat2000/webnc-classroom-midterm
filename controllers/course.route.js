@@ -7,6 +7,7 @@ const EnrollMent = require('../models/enrollments.models');
 const nodemailer = require('nodemailer');
 const usersModels = require('../models/users.models');
 const statusModels = require('../models/statuses.model');
+const notificationModels = require('../models/notifications.model');
 const gradesModel = require('../models/grades.model');
 const profilesModels = require('../models/profiles.models');
 const studentList = require('../models/studentList.model');
@@ -70,12 +71,35 @@ router.get('/news/:courseId', verifyToken, async function (req, res) {
     })
   );
   let news = [];
-  for (let i = 0; i < users.length; i++) {
+  for (let i = users.length - 1; i >= 0; i--) {
     news.push({ content: status[i].content, user: users[i].name });
   }
   console.log(news);
   res.json({ status: news });
 });
+
+
+router.get('/notifications/:courseId', verifyToken, async function (req, res) {
+  const { courseId } = req.params;
+  console.log(courseId)
+  const notificationList = await notificationModels.find({ courseId: courseId });
+  console.log(notificationList)
+  const users = await Promise.all(
+    notificationList.map(async (s) => {
+      const user = await usersModels.find({
+        _id: mongoose.Types.ObjectId(s.userId),
+      });
+      return user[0];
+    })
+  );
+  let notifications = [];
+  for (let i = users.length - 1; i >= 0; i--) {
+    notifications.push({ content: notificationList[i].content, user: users[i].name });
+  }
+  console.log(notifications);
+  res.json({ notification: notifications });
+});
+
 
 router.get('/gradestructure/:courseId', verifyToken, async function (req, res) {
   const { courseId } = req.params;
@@ -191,6 +215,27 @@ router.post('/news/', verifyToken, async function (req, res) {
     const userId = req.userId;
     const newStatus = new Status({ courseId, userId, content });
     await newStatus.save();
+    return res.json({
+      message: 'Status created successfully',
+    });
+  } catch (error) {
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+router.post('/notifications/', verifyToken, async function (req, res) {
+  console.log(req.body);
+  const { content, courseId } = req.body;
+  console.log(content);
+  console.log(courseId);
+  console.log(req.userId);
+  if (!content || !courseId) {
+    return res.status(400).json({ message: 'Missing required value' });
+  }
+  try {
+    const userId = req.userId;
+    const newNotification = new Notice({ courseId, userId, content });
+    await newNotification.save();
     return res.json({
       message: 'Status created successfully',
     });
