@@ -8,7 +8,7 @@ import { Grid, Menu, Segment } from 'semantic-ui-react';
 import { CourseGrade } from './CourseGrade';
 import { CourseGradeStructure } from './CourseGradeStructure';
 import { CourseGradeStudent } from './CourseGradeStudent';
-import { CourseNotifications} from './CourseNotifications';
+import { CourseNotifications } from './CourseNotifications';
 const { REACT_APP_SERVER_URL } = process.env;
 export const CourseDetail = (props) => {
   const [activeItem, setActiveItem] = useState('New Feeds');
@@ -17,7 +17,7 @@ export const CourseDetail = (props) => {
   const [news, setNews] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [grades, setGrades] = useState([]);
-  const [isRoleTeacher,setIsRoleTeacher] = useState(false);
+  const [isRoleTeacher, setIsRoleTeacher] = useState(false);
 
   const submitStatus = async (content) => {
     console.log('add status');
@@ -64,7 +64,7 @@ export const CourseDetail = (props) => {
       else return { success: false, message: error.message };
     }
   };
-  const LoadNotifications= async () => {
+  const LoadNotifications = async () => {
     try {
       const response = await axios.get(
         `${REACT_APP_SERVER_URL}/course/notifications/${props.Course._id}`
@@ -97,21 +97,21 @@ export const CourseDetail = (props) => {
       const response = await axios.get(
         `${REACT_APP_SERVER_URL}/course/roleAccount/${props.Course._id}`
       );
-      
-      if(response.data.roleAccount===1){
-        
+
+      if (response.data.roleAccount === 1) {
+
         setIsRoleTeacher(true);
       }
-      
+
     } catch (error) {
       if (error.response) return error.response.data;
       else return { success: false, message: error.message };
     }
   };
-  
-  useEffect(()=>{
+
+  useEffect(() => {
     LoadRoleAccount();
-  },[]);
+  }, []);
 
   useEffect(() => {
     LoadUsers();
@@ -141,18 +141,20 @@ export const CourseDetail = (props) => {
   } else if (activeItem === 'Settings') {
     content = <CourseSettings Course={props.Course}  ></CourseSettings>;
   } else if (activeItem == 'Grades') {
-    if(isRoleTeacher){
+    if (isRoleTeacher) {
       content = <CourseGrade CourseId={props.Course._id} ></CourseGrade>;
     }
-    else{
-      content= (<CourseGradeStudent CourseId={props.Course._id}></CourseGradeStudent>);
+    else {
+      content = (<CourseGradeStudent CourseId={props.Course._id}></CourseGradeStudent>);
     }
-   
+
   } else if (activeItem == 'Grade Structure') {
     //We need to load the grade structure, currently not implemented
-    content = (
-      <CourseGradeStructure Course={props.Course}></CourseGradeStructure>
-    );
+    if (isRoleTeacher) {
+      content = (
+        <CourseGradeStructure Course={props.Course}></CourseGradeStructure>
+      );
+    }
   } else if (activeItem == 'Notifications') {
     //update sau
     content = <CourseNotifications Notifications={notifications}></CourseNotifications>;
@@ -164,7 +166,7 @@ export const CourseDetail = (props) => {
       <Grid container>
         <Grid.Column width={4}>
           <Menu fluid vertical tabular pointing color='blue'>
-          <Menu.Item
+            <Menu.Item
               name='Notifications'
               active={activeItem === 'Notifications'}
               onClick={handleItemClick}
