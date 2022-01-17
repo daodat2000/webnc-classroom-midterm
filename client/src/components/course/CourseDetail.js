@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { Grid, Menu, Segment } from 'semantic-ui-react';
 import { CourseGrade } from './CourseGrade';
 import { CourseGradeStructure } from './CourseGradeStructure';
+import { CourseGradeStudent } from './CourseGradeStudent';
 const { REACT_APP_SERVER_URL } = process.env;
 export const CourseDetail = (props) => {
   const [activeItem, setActiveItem] = useState('New Feeds');
@@ -14,6 +15,7 @@ export const CourseDetail = (props) => {
   const [students, setStudents] = useState([]);
   const [news, setNews] = useState([]);
   const [grades, setGrades] = useState([]);
+  const [isRoleTeacher,setIsRoleTeacher] = useState(false);
 
   const submitStatus = async (content) => {
     console.log('add status');
@@ -67,6 +69,27 @@ export const CourseDetail = (props) => {
     }
   };
 
+  const LoadRoleAccount = async () => {
+    try {
+      const response = await axios.get(
+        `${REACT_APP_SERVER_URL}/course/roleAccount/${props.Course._id}`
+      );
+      
+      if(response.data.roleAccount===1){
+        
+        setIsRoleTeacher(true);
+      }
+      
+    } catch (error) {
+      if (error.response) return error.response.data;
+      else return { success: false, message: error.message };
+    }
+  };
+  
+  useEffect(()=>{
+    LoadRoleAccount();
+  },[]);
+
   useEffect(() => {
     LoadUsers();
   }, []);
@@ -93,14 +116,23 @@ export const CourseDetail = (props) => {
   } else if (activeItem === 'New Feeds') {
     content = <CourseNews News={news} onSubmit={submitStatus}></CourseNews>;
   } else if (activeItem === 'Settings') {
-    content = <CourseSettings Course={props.Course}></CourseSettings>;
+    content = <CourseSettings Course={props.Course}  ></CourseSettings>;
   } else if (activeItem == 'Grades') {
-    content = <CourseGrade CourseId={props.Course._id}></CourseGrade>;
+    if(isRoleTeacher){
+      content = <CourseGrade CourseId={props.Course._id} ></CourseGrade>;
+    }
+    else{
+      content= (<CourseGradeStudent CourseId={props.Course._id}></CourseGradeStudent>);
+    }
+   
   } else if (activeItem == 'Grade Structure') {
     //We need to load the grade structure, currently not implemented
-    content = (
-      <CourseGradeStructure Course={props.Course}></CourseGradeStructure>
-    );
+    //if(isRoleTeacher){
+      content = (
+        <CourseGradeStructure Course={props.Course} isTeacher={isRoleTeacher} ></CourseGradeStructure>
+      );
+    //}
+   
   }
 
   return (

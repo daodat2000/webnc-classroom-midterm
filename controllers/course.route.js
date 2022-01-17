@@ -131,18 +131,56 @@ router.post('/gradestructure/edit', verifyToken, async function (req, res) {
   return res.json({ gradeStruture: req.body });
 });
 
-// router.get('/grades/:courseId', verifyToken, async function (req, res) {
-//   const { courseId } = req.params;
-//   console.log(typeof (mongoose.Types.ObjectId(req.userId)))
-//   const user = await profilesModels.findOne({ userId: mongoose.Types.ObjectId(req.userId) })
-//   console.log("user")
+router.get('/gradesStudent/:courseId', verifyToken, async function (req, res) {
+  
+   const user = await profilesModels.findOne({ userId: mongoose.Types.ObjectId(req.userId) })
 
-//   console.log(user);
-//   //console.log(courseId)
-//   const grades = await gradesModel.find({ courseId: courseId, studentId: user.studentId });
-//   console.log(grades);
-//   res.json({ grades: grades });
-// });
+
+  const courseId = req.params.courseId;
+  const gradeStructure = await gradestructureModel
+    .find({ courseId: courseId })
+    .sort('index');
+ 
+  var student = user;
+  const data = [];
+  var checkFinalizeAll =1;
+    let total = 0;
+    const isEmpty = false;
+    const grades = [];
+    for (const item of gradeStructure) {
+      const grade = await gradesModel.findOne({
+        studentId: student.studentId,
+        gradeStructureId: item._id,
+        
+      });
+      if (grade&& item.finalized) {
+        total += (Number(grade.grade) * item.detail) / 100;
+        grades.push(grade);
+      } else {
+        checkFinalizeAll=0;
+        const newGrade = {
+          studentId: student.studentId,
+          gradeStructureId: item._id,
+          courseId: courseId,
+          grade: '',
+        };
+        grades.push(newGrade);
+      }
+    }
+    if(checkFinalizeAll==0){
+      total=0;
+    }
+    const rowData = {
+      studentId: student.studentId,
+      studentName: student.fullName,
+      grades: grades,
+      total: parseFloat(total).toFixed(2),
+    };
+    data.push(rowData);
+  
+  res.json({ data });
+  
+});
 
 router.get('/join/:courseId', verifyToken, async function (req, res) {
   const { role } = req.query;
@@ -458,5 +496,22 @@ router.post('/grade/update', async function (req, res) {
     res.status(400).send('ERROR');
   }
 });
+
+router.get('/roleAccount/:courseId',verifyToken, async function (req, res) {
+  const courseId = req.params.courseId;
+  const userId = req.userId;
+  const result = await EnrollMent.find({ userId: userId,courseId: courseId })
+  var role =0;
+  console.log("check role")
+  console.log(courseId);
+  console.log(userId);
+  console.log(result[0].role);
+  if(result[0].role=="Teacher"){
+    role =1;
+  }
+  res.json({roleAccount:role});
+});
+
+
 
 module.exports = router;
