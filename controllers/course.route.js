@@ -390,6 +390,7 @@ router.post('/uploadStudentList/', verifyToken, async function (req, res) {
     const file = req.files;
     const { courseId } = req.body;
     console.log( courseId);  
+    studentList.find({courseId:courseId}).remove().exec();
     let csvData = req.files.file.data.toString('utf8');
     csvtojson()
       .fromString(csvData)
